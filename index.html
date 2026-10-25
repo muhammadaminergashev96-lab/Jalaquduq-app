@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Jalaquduq ovozi</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<style>
+:root{--bg:#f4f6f8;--card:#fff;--text:#1a2230;--mut:#6b7788;--acc:#1f8a70;--accbg:#e3f4ef;--line:#e6eaef}
+@media (prefers-color-scheme:dark){:root{--bg:#10151c;--card:#1a212b;--text:#eef2f6;--mut:#93a0b1;--acc:#3ec9a3;--accbg:#173a31;--line:#28313d}}
+*{box-sizing:border-box}
+body{margin:0 auto;background:var(--bg);color:var(--text);font-family:-apple-system,"Segoe UI",Roboto,sans-serif;padding:16px;max-width:520px}
+h1{font-size:20px;margin:4px 0 2px}
+.sub{color:var(--mut);font-size:13px;margin-bottom:14px}
+.card{background:var(--card);border-radius:16px;padding:14px 16px;margin-bottom:12px;border:1px solid var(--line)}
+.card h2{font-size:13px;color:var(--mut);margin:0 0 10px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
+.next{background:var(--accbg);border-color:transparent}
+.next .big{font-size:30px;font-weight:700;color:var(--acc)}
+.row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);font-size:16px}
+.row:last-child{border:0}
+.row.on{color:var(--acc);font-weight:700}
+.wx{display:flex;align-items:center;gap:14px}
+.wx .t{font-size:34px;font-weight:700}
+.wx .d{color:var(--mut);font-size:14px}
+.sos{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sos a{display:block;text-align:center;padding:12px 6px;border-radius:12px;background:var(--accbg);color:var(--acc);text-decoration:none;font-weight:600;font-size:14px}
+.sos b{display:block;font-size:20px}
+</style>
+</head>
+<body>
+<h1>Jalaquduq ovozi</h1>
+<div class="sub" id="date"></div>
+
+<div class="card next"><h2>Keyingi namoz</h2><div class="big" id="nn">—</div><div id="nl" class="sub" style="margin:2px 0 0"></div></div>
+<div class="card"><h2>Namoz vaqtlari</h2><div id="pt"></div></div>
+<div class="card"><h2>Ob-havo</h2><div class="wx" id="wx"><div class="d">Yuklanmoqda…</div></div></div>
+<div class="card"><h2>Shoshilinch raqamlar</h2>
+<div class="sos">
+<a href="tel:101"><b>101</b>O‘t o‘chirish</a>
+<a href="tel:102"><b>102</b>Politsiya</a>
+<a href="tel:103"><b>103</b>Tez yordam</a>
+<a href="tel:104"><b>104</b>Gaz xizmati</a>
+</div></div>
+<div class="sub" style="text-align:center">Namoz vaqtlari hisoblab chiqilgan, taxminiy (±2 daqiqa).</div>
+
+<script>
+try{var tg=window.Telegram&&window.Telegram.WebApp;if(tg){tg.ready();tg.expand();}}catch(e){}
+var LAT=40.72,LNG=72.62,TZ=5;
+var R=Math.PI/180;
+function calc(dt){
+  var jd=Date.UTC(dt.getFullYear(),dt.getMonth(),dt.getDate(),12)/864e5+2440587.5,n=jd-2451545;
+  var L=(280.46+0.9856474*n)%360,g=((357.528+0.9856003*n)%360)*R;
+  var lam=(L+1.915*Math.sin(g)+0.02*Math.sin(2*g))*R,eps=(23.439-4e-7*n)*R;
+  var dec=Math.asin(Math.sin(eps)*Math.sin(lam));
+  var ra=Math.atan2(Math.cos(eps)*Math.sin(lam),Math.cos(lam))/R;
+  var eq=((L-ra+540)%360-180)/15;
+  var noon=12+TZ-LNG/15-eq;
+  function ha(alt){var c=(Math.sin(alt*R)-Math.sin(LAT*R)*Math.sin(dec))/(Math.cos(LAT*R)*Math.cos(dec));return Math.acos(Math.max(-1,Math.min(1,c)))/R/15}
+  var asrAlt=Math.atan(1/(2+Math.tan(Math.abs(LAT*R-dec))))/R;
+  return [["Bomdod",noon-ha(-18)],["Quyosh",noon-ha(-0.833)],["Peshin",noon+0.03],["Asr",noon+ha(asrAlt)],["Shom",noon+ha(-0.833)+0.02],["Xufton",noon+ha(-17)]];
+}
+function fmt(h){var m=Math.round(h*60);return String(Math.floor(m/60)%24).padStart(2,"0")+":"+String(m%60).padStart(2,"0")}
+var months=["yanvar","fevral","mart","aprel","may","iyun","iyul","avgust","sentyabr","oktyabr","noyabr","dekabr"];
+function render(){
+  var now=new Date(),T=calc(now),cur=now.getHours()+now.getMinutes()/60+now.getSeconds()/3600;
+  document.getElementById("date").textContent=now.getDate()+" "+months[now.getMonth()]+" "+now.getFullYear()+" · Jalaquduq";
+  var idx=T.findIndex(function(x){return x[1]>cur}),tomorrow=false;
+  if(idx<0){idx=0;tomorrow=true;}
+  var diff=T[idx][1]-cur+(tomorrow?24:0),mm=Math.floor(diff*60);
+  document.getElementById("nn").textContent=T[idx][0]+" "+fmt(T[idx][1]);
+  document.getElementById("nl").textContent=Math.floor(mm/60)+" soat "+(mm%60)+" daqiqadan keyin";
+  document.getElementById("pt").innerHTML=T.map(function(x,i){return '<div class="row'+(i===idx&&!tomorrow?' on':'')+'"><span>'+x[0]+'</span><span>'+fmt(x[1])+'</span></div>'}).join("");
+}
+render();setInterval(render,30000);
+var codes={0:"Ochiq",1:"Asosan ochiq",2:"Qisman bulutli",3:"Bulutli",45:"Tuman",48:"Tuman",51:"Mayda yomg‘ir",61:"Yomg‘ir",63:"Yomg‘ir",65:"Kuchli yomg‘ir",71:"Qor",73:"Qor",75:"Kuchli qor",80:"Jala",95:"Momaqaldiroq"};
+fetch("https://api.open-meteo.com/v1/forecast?latitude="+LAT+"&longitude="+LNG+"&current=temperature_2m,weather_code,wind_speed_10m&timezone=auto")
+.then(function(r){return r.json()}).then(function(j){
+  var c=j.current;
+  document.getElementById("wx").innerHTML='<div class="t">'+Math.round(c.temperature_2m)+'°C</div><div class="d">'+(codes[c.weather_code]||"—")+'<br>Shamol: '+Math.round(c.wind_speed_10m)+' km/soat</div>';
+}).catch(function(){
+  document.getElementById("wx").innerHTML='<div class="d">Ob-havo hozircha mavjud emas.</div>';
+});
+</script>
+</body>
+</html>
