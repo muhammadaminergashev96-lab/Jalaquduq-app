@@ -75,7 +75,7 @@ function calc(dt){
   var noon=12+TZ-LNG/15-eq;
   function ha(alt){var c=(Math.sin(alt*R)-Math.sin(LAT*R)*Math.sin(dec))/(Math.cos(LAT*R)*Math.cos(dec));return Math.acos(Math.max(-1,Math.min(1,c)))/R/15}
   var asrAlt=Math.atan(1/(2+Math.tan(Math.abs(LAT*R-dec))))/R;
-  return [["Bomdod",noon-ha(-18)],["Quyosh",noon-ha(-0.833)],["Peshin",noon+0.03],["Asr",noon+ha(asrAlt)],["Shom",noon+ha(-0.833)+0.02],["Xufton",noon+ha(-17)]];
+  return [["Bomdod",noon-ha(-16)],["Quyosh",noon-ha(-0.833)],["Peshin",noon+0.03],["Asr",noon+ha(asrAlt)],["Shom",noon+ha(-0.833)+0.02],["Xufton",noon+ha(-15)]];
 }
 function fmt(h){var m=Math.round(h*60);return String(Math.floor(m/60)%24).padStart(2,"0")+":"+String(m%60).padStart(2,"0")}
 var months=["yanvar","fevral","mart","aprel","may","iyun","iyul","avgust","sentyabr","oktyabr","noyabr","dekabr"];
