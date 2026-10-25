@@ -10,12 +10,30 @@
 @media (prefers-color-scheme:dark){:root{--bg:#10151c;--card:#1a212b;--text:#eef2f6;--mut:#93a0b1;--acc:#3ec9a3;--accbg:#173a31;--line:#28313d;--up:#3ec9a3;--dn:#ff7676}}
 *{box-sizing:border-box}
 body{margin:0 auto;background:var(--bg);color:var(--text);font-family:-apple-system,"Segoe UI",Roboto,sans-serif;padding:16px;max-width:520px}
+.top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
 h1{font-size:20px;margin:4px 0 2px}
 .sub{color:var(--mut);font-size:13px;margin-bottom:14px}
+.lang{display:flex;gap:4px}
+.lang button{border:1px solid var(--line);background:var(--card);color:var(--mut);border-radius:10px;padding:6px 9px;font-size:12px;font-weight:700}
+.lang button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+.sec{display:none}.sec.on{display:block}
 .card{background:var(--card);border-radius:16px;padding:14px 16px;margin-bottom:12px;border:1px solid var(--line)}
 .card h2{font-size:13px;color:var(--mut);margin:0 0 10px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
-.next{background:var(--accbg);border-color:transparent}
-.next .big{font-size:30px;font-weight:700;color:var(--acc)}
+.banner{background:linear-gradient(135deg,#1f8a70,#3ec9a3);color:#fff;border-radius:20px;padding:16px;margin-bottom:14px}
+.banner small{opacity:.85;font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+.banner .big{font-size:30px;font-weight:700;margin:2px 0}
+.banner .nl{font-size:13px;opacity:.9}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{border:0;text-align:left;color:#fff;border-radius:20px;padding:14px;min-height:130px;display:flex;flex-direction:column;justify-content:flex-end;position:relative;overflow:hidden;font-family:inherit}
+.tile::after{content:"";position:absolute;right:-30px;bottom:-30px;width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,.14)}
+.tile .ic{position:absolute;top:12px;left:12px;width:46px;height:46px;border-radius:14px;background:rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;font-size:26px}
+.tile b{font-size:17px;display:block}
+.tile span{font-size:12px;opacity:.88}
+.t1{background:linear-gradient(135deg,#0f7a62,#3ec9a3)}
+.t2{background:linear-gradient(135deg,#1d5fd1,#4aa3e8)}
+.t3{background:linear-gradient(135deg,#b8860b,#e6b422)}
+.t4{background:linear-gradient(135deg,#c0392b,#ff7a59)}
+.back{border:0;background:var(--accbg);color:var(--acc);font-weight:700;border-radius:12px;padding:9px 14px;font-size:14px;margin-bottom:12px}
 .row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--line);font-size:16px}
 .row:last-child{border:0}
 .row.on{color:var(--acc);font-weight:700}
@@ -35,49 +53,96 @@ h1{font-size:20px;margin:4px 0 2px}
 .conv input{flex:1}
 .res{margin-top:10px;font-size:18px;font-weight:700;color:var(--acc)}
 .sos{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.sos a{display:block;text-align:center;padding:12px 6px;border-radius:12px;background:var(--accbg);color:var(--acc);text-decoration:none;font-weight:600;font-size:14px}
-.sos b{display:block;font-size:20px}
+.sos a{display:block;text-align:center;padding:14px 6px;border-radius:12px;background:var(--accbg);color:var(--acc);text-decoration:none;font-weight:600;font-size:14px}
+.sos b{display:block;font-size:22px}
 </style>
 </head>
 <body>
-<h1>Jalaquduq ovozi</h1>
-<div class="sub" id="date"></div>
-
-<div class="card next"><h2>Keyingi namoz</h2><div class="big" id="nn">—</div><div id="nl" class="sub" style="margin:2px 0 0"></div></div>
-<div class="card"><h2>Namoz vaqtlari</h2><div id="pt"></div><div class="sub" id="pnote" style="margin:8px 0 0"></div></div>
-<div class="card"><h2>Ob-havo</h2><div class="wx" id="wx"><div class="d">Yuklanmoqda…</div></div></div>
-
-<div class="card cur"><h2>Valyuta kursi</h2>
-<div id="cur"><div class="sub">Yuklanmoqda…</div></div>
-<div class="conv">
-<input id="amt" type="number" inputmode="decimal" value="100" min="0">
-<select id="cc"></select>
-</div>
-<div class="res" id="res"></div>
-<div class="sub" id="cd" style="margin:8px 0 0"></div>
+<div class="top">
+  <div><h1 data-k="title"></h1><div class="sub" id="date"></div></div>
+  <div class="lang"><button data-l="uz">UZ</button><button data-l="oz">ЎЗ</button><button data-l="ru">RU</button></div>
 </div>
 
-<div class="card"><h2>Shoshilinch raqamlar</h2>
-<div class="sos">
-<a href="tel:101"><b>101</b>O‘t o‘chirish</a>
-<a href="tel:102"><b>102</b>Politsiya</a>
-<a href="tel:103"><b>103</b>Tez yordam</a>
-<a href="tel:104"><b>104</b>Gaz xizmati</a>
-</div></div>
+<div class="sec on" id="home">
+  <div class="banner" id="bn"><small data-k="next"></small><div class="big" id="nn">—</div><div class="nl" id="nl"></div></div>
+  <div class="grid">
+    <button class="tile t1" data-go="namoz"><div class="ic">🕌</div><b data-k="tPray"></b><span data-k="sPray"></span></button>
+    <button class="tile t2" data-go="wx"><div class="ic">⛅</div><b data-k="tWx"></b><span data-k="sWx"></span></button>
+    <button class="tile t3" data-go="cur"><div class="ic">💵</div><b data-k="tCur"></b><span data-k="sCur"></span></button>
+    <button class="tile t4" data-go="sos"><div class="ic">🚨</div><b data-k="tSos"></b><span>101 · 102 · 103 · 104</span></button>
+  </div>
+</div>
+
+<div class="sec" id="namoz">
+  <button class="back" data-back>← <span data-k="back"></span></button>
+  <div class="card"><h2 data-k="tPray"></h2><div id="pt"></div><div class="sub" id="pnote" style="margin:8px 0 0"></div></div>
+</div>
+
+<div class="sec" id="wx">
+  <button class="back" data-back>← <span data-k="back"></span></button>
+  <div class="card"><h2 data-k="tWx"></h2><div class="wx" id="wxb"></div></div>
+</div>
+
+<div class="sec" id="cur">
+  <button class="back" data-back>← <span data-k="back"></span></button>
+  <div class="card cur"><h2 data-k="tCur"></h2>
+    <div id="curb"></div>
+    <div class="conv"><input id="amt" type="number" inputmode="decimal" value="100" min="0"><select id="cc"></select></div>
+    <div class="res" id="res"></div>
+    <div class="sub" id="cd" style="margin:8px 0 0"></div>
+  </div>
+</div>
+
+<div class="sec" id="sos">
+  <button class="back" data-back>← <span data-k="back"></span></button>
+  <div class="card"><h2 data-k="tSos"></h2>
+    <div class="sos">
+      <a href="tel:101"><b>101</b><span data-k="s101"></span></a>
+      <a href="tel:102"><b>102</b><span data-k="s102"></span></a>
+      <a href="tel:103"><b>103</b><span data-k="s103"></span></a>
+      <a href="tel:104"><b>104</b><span data-k="s104"></span></a>
+    </div>
+  </div>
+</div>
 
 <script>
-try{var tg=window.Telegram&&window.Telegram.WebApp;if(tg){tg.ready();tg.expand();}}catch(e){}
+var tg=window.Telegram&&window.Telegram.WebApp;
+try{if(tg){tg.ready();tg.expand();}}catch(e){}
 
-/* ===== MASJID JADVALI (har hafta shu yerni yangilang) =====
-   from/to: sana oralig'i (YYYY-OO-KK), t: [azon, takbir] */
+/* ===== MASJID JADVALI (har hafta shu yerni yangilang) ===== */
 var SCHEDULE=[
  {from:"2026-10-23",to:"2026-10-30",
   t:{Bomdod:["05:20","06:00"],Peshin:["12:30","12:45"],Asr:["15:50","16:00"],Shom:["17:30","17:30"],Xufton:["19:00","19:10"]}}
 ];
 /* ========================================================== */
 
-var LAT=40.72,LNG=72.62,TZ=5;
-var R=Math.PI/180;
+var IDS=["Bomdod","Quyosh","Peshin","Asr","Shom","Xufton"];
+var T={
+uz:{title:"Jalaquduq ovozi",next:"Keyingi namoz",inn:"{h} soat {m} daqiqadan keyin",tPray:"Namoz vaqtlari",sPray:"Azon va takbir",tWx:"Ob-havo",sWx:"Jalaquduq",tCur:"Valyuta kursi",sCur:"Markaziy bank",tSos:"Shoshilinch",back:"Orqaga",azon:"Azon",takbir:"Takbir",
+ noteM:"Masjid jadvali: {a} – {b}. Quyosh vaqti hisoblangan.",noteC:"Hisoblangan vaqtlar, taxminiy (±2 daqiqa).",loading:"Yuklanmoqda…",wxNA:"Ob-havo hozircha mavjud emas.",wind:"Shamol",kmh:"km/soat",curNA:"Kurs hozircha mavjud emas.",som:"so‘m",unit:"1 birlik",units:"{n} birlik",cb:"Markaziy bank kursi",
+ s101:"O‘t o‘chirish",s102:"Politsiya",s103:"Tez yordam",s104:"Gaz xizmati",
+ p:{Bomdod:"Bomdod",Quyosh:"Quyosh",Peshin:"Peshin",Asr:"Asr",Shom:"Shom",Xufton:"Xufton"},
+ mo:["yanvar","fevral","mart","aprel","may","iyun","iyul","avgust","sentyabr","oktyabr","noyabr","dekabr"],i:0},
+oz:{title:"Жалақудуқ овози",next:"Кейинги намоз",inn:"{h} соат {m} дақиқадан кейин",tPray:"Намоз вақтлари",sPray:"Азон ва такбир",tWx:"Об-ҳаво",sWx:"Жалақудуқ",tCur:"Валюта курси",sCur:"Марказий банк",tSos:"Шошилинч",back:"Орқага",azon:"Азон",takbir:"Такбир",
+ noteM:"Масжид жадвали: {a} – {b}. Қуёш вақти ҳисобланган.",noteC:"Ҳисобланган вақтлар, тахминий (±2 дақиқа).",loading:"Юкланмоқда…",wxNA:"Об-ҳаво ҳозирча мавжуд эмас.",wind:"Шамол",kmh:"км/соат",curNA:"Курс ҳозирча мавжуд эмас.",som:"сўм",unit:"1 бирлик",units:"{n} бирлик",cb:"Марказий банк курси",
+ s101:"Ўт ўчириш",s102:"Полиция",s103:"Тез ёрдам",s104:"Газ хизмати",
+ p:{Bomdod:"Бомдод",Quyosh:"Қуёш",Peshin:"Пешин",Asr:"Аср",Shom:"Шом",Xufton:"Хуфтон"},
+ mo:["январь","феврал","март","апрель","май","июнь","июль","август","сентябрь","октябрь","ноябрь","декабрь"],i:1},
+ru:{title:"Голос Жалакудука",next:"Следующий намаз",inn:"через {h} ч {m} мин",tPray:"Время намаза",sPray:"Азан и икама",tWx:"Погода",sWx:"Жалакудук",tCur:"Курс валют",sCur:"Центробанк",tSos:"Экстренные",back:"Назад",azon:"Азан",takbir:"Икама",
+ noteM:"Расписание мечети: {a} – {b}. Время восхода рассчитано.",noteC:"Расчётное время, примерно (±2 мин).",loading:"Загрузка…",wxNA:"Погода пока недоступна.",wind:"Ветер",kmh:"км/ч",curNA:"Курс пока недоступен.",som:"сум",unit:"1 ед.",units:"{n} ед.",cb:"Курс Центробанка",
+ s101:"Пожарные",s102:"Полиция",s103:"Скорая",s104:"Газовая служба",
+ p:{Bomdod:"Фаджр",Quyosh:"Восход",Peshin:"Зухр",Asr:"Аср",Shom:"Магриб",Xufton:"Иша"},
+ mo:["января","февраля","марта","апреля","мая","июня","июля","августа","сентября","октября","ноября","декабря"],i:2}
+};
+var WC={0:["Ochiq","Очиқ","Ясно"],1:["Asosan ochiq","Асосан очиқ","Малооблачно"],2:["Qisman bulutli","Қисман булутли","Переменная облачность"],3:["Bulutli","Булутли","Пасмурно"],45:["Tuman","Туман","Туман"],48:["Tuman","Туман","Туман"],51:["Mayda yomg‘ir","Майда ёмғир","Морось"],61:["Yomg‘ir","Ёмғир","Дождь"],63:["Yomg‘ir","Ёмғир","Дождь"],65:["Kuchli yomg‘ir","Кучли ёмғир","Сильный дождь"],71:["Qor","Қор","Снег"],73:["Qor","Қор","Снег"],75:["Kuchli qor","Кучли қор","Сильный снег"],80:["Jala","Жала","Ливень"],95:["Momaqaldiroq","Момақалдироқ","Гроза"]};
+
+var LANG=null;
+try{LANG=localStorage.getItem("lang")}catch(e){}
+if(!T[LANG]){var lc=(tg&&tg.initDataUnsafe&&tg.initDataUnsafe.user&&tg.initDataUnsafe.user.language_code)||"";LANG=lc.indexOf("ru")===0?"ru":"uz"}
+function t(k){return T[LANG][k]}
+function fill(s,o){return s.replace(/\{(\w+)\}/g,function(_,k){return o[k]})}
+
+var LAT=40.72,LNG=72.62,TZ=5,R=Math.PI/180;
 function calc(dt){
   var jd=Date.UTC(dt.getFullYear(),dt.getMonth(),dt.getDate(),12)/864e5+2440587.5,n=jd-2451545;
   var L=(280.46+0.9856474*n)%360,g=((357.528+0.9856003*n)%360)*R;
@@ -94,67 +159,28 @@ function fmt(h){var m=Math.round(h*60);return String(Math.floor(m/60)%24).padSta
 function toH(s){var p=s.split(":");return +p[0]+(+p[1])/60}
 function ymd(d){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
 function dm(s){return s.slice(8,10)+"."+s.slice(5,7)}
-var months=["yanvar","fevral","mart","aprel","may","iyun","iyul","avgust","sentyabr","oktyabr","noyabr","dekabr"];
+function $(id){return document.getElementById(id)}
 
-function render(){
+function renderPray(){
   var now=new Date(),cur=now.getHours()+now.getMinutes()/60+now.getSeconds()/3600;
   var key=ymd(now),s=SCHEDULE.find(function(x){return key>=x.from&&key<=x.to});
-  var C=calc(now);
-  var rows=C.map(function(x){
+  var rows=calc(now).map(function(x){
     if(s&&s.t[x[0]])return {n:x[0],a:toH(s.t[x[0]][0]),k:toH(s.t[x[0]][1])};
     return {n:x[0],a:x[1],k:null};
   });
-  document.getElementById("date").textContent=now.getDate()+" "+months[now.getMonth()]+" "+now.getFullYear()+" · Jalaquduq";
+  $("date").textContent=now.getDate()+" "+t("mo")[now.getMonth()]+" "+now.getFullYear();
   var idx=-1,i;
   for(i=0;i<rows.length;i++){if(rows[i].n!=="Quyosh"&&rows[i].a>cur){idx=i;break}}
-  var tomorrow=false;
-  if(idx<0){idx=0;tomorrow=true}
-  var diff=rows[idx].a-cur+(tomorrow?24:0),mm=Math.floor(diff*60);
-  document.getElementById("nn").textContent=rows[idx].n+" "+fmt(rows[idx].a);
-  document.getElementById("nl").textContent=Math.floor(mm/60)+" soat "+(mm%60)+" daqiqadan keyin";
-  var head=s?'<div class="row hd"><span></span><span class="c">Azon</span><span class="c">Takbir</span></div>':'';
-  document.getElementById("pt").innerHTML=head+rows.map(function(x,j){
-    return '<div class="row'+(j===idx&&!tomorrow?' on':'')+'"><span>'+x.n+'</span><span class="c">'+fmt(x.a)+'</span>'+(s?'<span class="c k">'+(x.k!==null?fmt(x.k):'—')+'</span>':'')+'</div>';
+  var tm=false;if(idx<0){idx=0;tm=true}
+  var diff=rows[idx].a-cur+(tm?24:0),mm=Math.floor(diff*60);
+  $("nn").textContent=t("p")[rows[idx].n]+" "+fmt(rows[idx].a);
+  $("nl").textContent=fill(t("inn"),{h:Math.floor(mm/60),m:mm%60});
+  var head=s?'<div class="row hd"><span></span><span class="c">'+t("azon")+'</span><span class="c">'+t("takbir")+'</span></div>':'';
+  $("pt").innerHTML=head+rows.map(function(x,j){
+    return '<div class="row'+(j===idx&&!tm?' on':'')+'"><span>'+t("p")[x.n]+'</span><span class="c">'+fmt(x.a)+'</span>'+(s?'<span class="c k">'+(x.k!==null?fmt(x.k):'—')+'</span>':'')+'</div>';
   }).join("");
-  document.getElementById("pnote").textContent=s?"Masjid jadvali: "+dm(s.from)+" – "+dm(s.to)+". Quyosh vaqti hisoblangan.":"Hisoblangan vaqtlar, taxminiy (±2 daqiqa).";
+  $("pnote").textContent=s?fill(t("noteM"),{a:dm(s.from),b:dm(s.to)}):t("noteC");
 }
-render();setInterval(render,30000);
 
-var codes={0:"Ochiq",1:"Asosan ochiq",2:"Qisman bulutli",3:"Bulutli",45:"Tuman",48:"Tuman",51:"Mayda yomg‘ir",61:"Yomg‘ir",63:"Yomg‘ir",65:"Kuchli yomg‘ir",71:"Qor",73:"Qor",75:"Kuchli qor",80:"Jala",95:"Momaqaldiroq"};
-fetch("https://api.open-meteo.com/v1/forecast?latitude="+LAT+"&longitude="+LNG+"&current=temperature_2m,weather_code,wind_speed_10m&timezone=auto")
-.then(function(r){return r.json()}).then(function(j){
-  var c=j.current;
-  document.getElementById("wx").innerHTML='<div class="t">'+Math.round(c.temperature_2m)+'°C</div><div class="d">'+(codes[c.weather_code]||"—")+'<br>Shamol: '+Math.round(c.wind_speed_10m)+' km/soat</div>';
-}).catch(function(){
-  document.getElementById("wx").innerHTML='<div class="d">Ob-havo hozircha mavjud emas.</div>';
-});
-
-var rates={};
-function nf(n,d){return n.toLocaleString("ru-RU",{maximumFractionDigits:d})}
-function calcConv(){
-  var c=document.getElementById("cc").value,a=parseFloat(document.getElementById("amt").value)||0;
-  document.getElementById("res").textContent=rates[c]?nf(a*rates[c].unit,0)+" so‘m":"";
-}
-fetch("https://cbu.uz/uz/arkhiv-kursov-valyut/json/")
-.then(function(r){return r.json()}).then(function(list){
-  var want=["USD","EUR","RUB","KZT"],html="",opts="",dt="";
-  want.forEach(function(k){
-    var x=list.find(function(i){return i.Ccy===k});
-    if(!x)return;
-    var rate=parseFloat(x.Rate),nom=parseFloat(x.Nominal)||1,d=parseFloat(x.Diff)||0;
-    rates[k]={unit:rate/nom};dt=x.Date;
-    html+='<div class="row"><span>'+k+'<small class="sub" style="margin:0">'+(nom>1?nom+' birlik':'1 birlik')+'</small></span><span class="r">'+nf(rate,2)+' so‘m<small class="'+(d>=0?'up':'dn')+'">'+(d>=0?'▲ +':'▼ ')+nf(d,2)+'</small></span></div>';
-    opts+='<option value="'+k+'">'+k+'</option>';
-  });
-  document.getElementById("cur").innerHTML=html||'<div class="sub">Kurs hozircha mavjud emas.</div>';
-  document.getElementById("cc").innerHTML=opts;
-  document.getElementById("cd").textContent=dt?"Markaziy bank kursi, "+dt:"";
-  calcConv();
-}).catch(function(){
-  document.getElementById("cur").innerHTML='<div class="sub">Kurs hozircha mavjud emas.</div>';
-});
-document.getElementById("amt").addEventListener("input",calcConv);
-document.getElementById("cc").addEventListener("change",calcConv);
-</script>
-</body>
-</html>
+var wxData=null,curData=null,rates={};
+function nf(n,d){return n.toLocaleString
