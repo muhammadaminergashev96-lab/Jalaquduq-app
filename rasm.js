@@ -10,7 +10,7 @@ var P={
   n4:"Sun’iy intellekt rasmni kattalashtirib, aniqroq qiladi (3840 px gacha). 10–40 soniya ketishi mumkin.",
   nbg:"Sun’iy intellekt odamni ajratib, tanlangan fonga qo‘yadi. Odam aniq ko‘ringan rasm yaxshi chiqadi. 10–40 soniya ketishi mumkin.",
   chBg:"Fonni tanlang",chRe:"Uslubni tanlang",hint:"Yuklab olinmasa, rasmni brauzerda oching:",ext:"Brauzerda ochish",
-  nGenFail:"Fon rasmi yaratilmadi, tayyor chizma fon ishlatildi.",nAiFail:"Sun’iy intellekt hozir javob bermadi, oddiy usul ishlatildi.",eSeg:"Odamni ajratish moduli yuklanmadi. Internetni tekshirib, qayta urinib ko‘ring.",eGen:"Xatolik yuz berdi. Boshqa rasm bilan urinib ko‘ring.",size:"O‘lcham"},
+  szL:"Odam o‘lchami",sz1:"Katta",sz2:"O‘rtacha",sz3:"Kichik",nGenFail:"Fon rasmi yaratilmadi, tayyor chizma fon ishlatildi.",nAiFail:"Sun’iy intellekt hozir javob bermadi, oddiy usul ishlatildi.",eSeg:"Odamni ajratish moduli yuklanmadi. Internetni tekshirib, qayta urinib ko‘ring.",eGen:"Xatolik yuz berdi. Boshqa rasm bilan urinib ko‘ring.",size:"O‘lcham"},
  ru:{tile:"Фото",tileS:"4K, фон, ретро",title:"Фото-монтаж",
   k4:"Качество 4K",k4d:"Увеличивает фото до размера 4K",
   bg:"Фон",bgd:"Ставит фон: пейзаж или Кааба",
@@ -19,15 +19,15 @@ var P={
   n4:"ИИ увеличивает фото и делает его чётче (до 3840 px). Это может занять 10–40 секунд.",
   nbg:"ИИ вырезает человека и ставит на выбранный фон. Лучше всего — фото, где человек хорошо виден. Может занять 10–40 секунд.",
   chBg:"Выберите фон",chRe:"Выберите стиль",hint:"Если не скачивается, откройте приложение в браузере:",ext:"Открыть в браузере",
-  nGenFail:"Фон не создался, использован нарисованный фон.",nAiFail:"ИИ сейчас не ответил, использован простой способ.",eSeg:"Не загрузился модуль выделения человека. Проверьте интернет и попробуйте ещё раз.",eGen:"Произошла ошибка. Попробуйте другое фото.",size:"Размер"}
+  szL:"Размер человека",sz1:"Крупно",sz2:"Средний",sz3:"Маленький",nGenFail:"Фон не создался, использован нарисованный фон.",nAiFail:"ИИ сейчас не ответил, использован простой способ.",eSeg:"Не загрузился модуль выделения человека. Проверьте интернет и попробуйте ещё раз.",eGen:"Произошла ошибка. Попробуйте другое фото.",size:"Размер"}
 };
 var BGP=[
-"photorealistic sunset over mountains, dramatic orange and purple sky, empty landscape, no people, cinematic, high detail",
+"realistic eye-level photo of a sunset over mountains, wide open space in front, dramatic orange and purple sky, empty landscape, no people, cinematic, high detail",
 "photorealistic serene alpine lake with snowy mountains reflection, clear morning light, empty landscape, no people, high detail",
 "photorealistic lush green valley with rolling hills and blue sky with white clouds, empty landscape, no people, high detail",
 "photorealistic night sky full of stars and milky way over silhouetted mountains, empty landscape, no people, high detail",
 "photorealistic golden sand dunes desert at sunset, warm light, empty landscape, no people, high detail",
-"photorealistic Kaaba in Masjid al-Haram Mecca at dusk, wide view, soft golden light, empty plaza, no people in foreground, high detail"];
+"realistic eye-level tourist photo at night inside Masjid al-Haram Mecca, the black Kaaba with golden band on the right side of the frame, Abraj Al Bait clock tower and two white minarets behind, glowing arches and street lights, white marble floor, crowd of worshippers in white far in the background, empty clear space in the lower center-left for a person standing in the foreground, black night sky, sharp, high detail"];
 var BGN=[["Quyosh botishi, tog‘lar","Закат в горах"],["Ko‘l va tog‘lar","Озеро и горы"],["Yashil vodiy","Зелёная долина"],["Tungi osmon","Ночное небо"],["Sahro","Пустыня"],["Ka’ba","Кааба"]];
 var REN=[["Film (90-yillar)","Плёнка 90-х"],["VHS kassetasi","VHS-кассета"],["Polaroid","Полароид"],["Eski qora-oq","Старое чёрно-белое"]];
 
@@ -357,7 +357,7 @@ function composite(base,mask,bi){
   var out=cv(w,h),ox=out.getContext("2d");BG[bi](ox,w,h,focus);ox.drawImage(pc,0,0);
   return out;
 }
-function compCut(cut,bi,bgi){
+function compCut(cut,bi,bgi){var sc0=S.sz||1;
   var w=cut.naturalWidth||cut.width,h=cut.naturalHeight||cut.height,k=Math.min(1,2400/Math.max(w,h));w=Math.round(w*k);h=Math.round(h*k);
   var pc=cv(w,h),px=pc.getContext("2d");px.drawImage(cut,0,0,w,h);
   var d=px.getImageData(0,0,w,h).data,sx=0,sw=0;
@@ -365,7 +365,7 @@ function compCut(cut,bi,bgi){
   var cx=sw>50?sx/sw/w:.5,focus=cx<.5?.72:.28;
   var out=cv(w,h),ox=out.getContext("2d");
   if(bgi){var bw=bgi.naturalWidth||bgi.width,bh=bgi.naturalHeight||bgi.height,sc=Math.max(w/bw,h/bh),dw=bw*sc,dh=bh*sc;ox.drawImage(bgi,(w-dw)/2,(h-dh)/2,dw,dh)}else BG[bi](ox,w,h,focus);
-  ox.drawImage(pc,0,0);
+  ox.drawImage(pc,w*(1-sc0)/2,h*(1-sc0),w*sc0,h*sc0);
   return out;
 }
 function localBg(img,bi){
@@ -380,7 +380,7 @@ function doBg(img,bi){
 }
 
 /* ---------- interfeys ---------- */
-var S={note:"",sub:null,src:null,img:null,bg:0,re:0,busy:false,err:"",out:null};
+var S={sz:.65,note:"",sub:null,src:null,img:null,bg:0,re:0,busy:false,err:"",out:null};
 var css=document.createElement("style");
 css.textContent=".t8{background:linear-gradient(135deg,#d6336c,#7048e8)}.rr{display:flex;align-items:center;gap:12px;width:100%;padding:14px;border-radius:14px;border:1px solid var(--line);background:var(--bg);color:var(--text);font-size:16px;font-weight:600;margin-bottom:8px;text-align:left;font-family:inherit}.rr .e{font-size:26px}.rbtn{display:block;width:100%;text-align:center;padding:13px;border-radius:12px;background:var(--accbg);color:var(--acc);font-size:16px;font-weight:700;margin:10px 0;font-family:inherit}.rmk{display:block;width:100%;padding:14px;border:0;border-radius:12px;background:var(--acc);color:#fff;font-size:16px;font-weight:700;margin-top:8px;font-family:inherit}.rmk:disabled{opacity:.5}.rimg{display:block;width:100%;max-height:420px;object-fit:contain;border-radius:12px;margin:10px 0;background:var(--bg)}.rch{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}.rc{border:2px solid var(--line);border-radius:12px;background:var(--bg);color:var(--text);padding:6px;font-size:13px;font-weight:600;font-family:inherit;text-align:center}.rc img{display:block;width:100%;border-radius:8px;margin-bottom:5px}.rc.on{border-color:var(--acc);color:var(--acc)}.rrow{display:flex;gap:8px}.rrow button{flex:1}";
 document.head.appendChild(css);
@@ -418,6 +418,9 @@ function draw(){
       h+='<h2 style="margin:14px 0 0">'+p("chRe")+'</h2><div class="rch">'+
         REN.map(function(n,i){return '<button class="rc'+(i===S.re?' on':'')+'" data-re="'+i+'">'+nm(n)+'</button>'}).join("")+'</div>';
     }
+    if(S.sub==="bg"){
+      h+='<h2 style="margin:14px 0 0">'+p("szL")+'</h2><div class="rch" style="grid-template-columns:1fr 1fr 1fr">'+[[1,"sz1"],[.65,"sz2"],[.5,"sz3"]].map(function(x){return '<button class="rc'+(S.sz===x[0]?' on':'')+'" data-sz="'+x[0]+'">'+p(x[1])+'</button>'}).join("")+'</div>';
+    }
     h+='<label class="rbtn">'+(S.src?p("other"):p("pick"))+'<input type="file" accept="image/*" id="rf" hidden></label>';
     if(S.src&&!S.out)h+='<img class="rimg" src="'+S.src+'" alt="">';
     h+='<button class="rmk" id="rm"'+((!S.img||S.busy)?' disabled':'')+'>'+(S.busy?p("busy"):p("make"))+'</button>';
@@ -435,6 +438,7 @@ function draw(){
   function on(sel,fn){var bs=sec.querySelectorAll(sel);for(var i=0;i<bs.length;i++)(function(b){b.addEventListener("click",function(e){fn(b,e)})})(bs[i])}
   on("[data-s]",function(b){S.sub=b.getAttribute("data-s");draw();window.scrollTo(0,0)});
   on("[data-bg]",function(b){S.bg=+b.getAttribute("data-bg");draw()});
+  on("[data-sz]",function(b){S.sz=+b.getAttribute("data-sz");draw()});
   on("[data-re]",function(b){S.re=+b.getAttribute("data-re");draw()});
   var rf=$("rf");if(rf)rf.addEventListener("change",function(){pickFile(rf.files&&rf.files[0])});
   var rm=$("rm");if(rm)rm.addEventListener("click",run);
