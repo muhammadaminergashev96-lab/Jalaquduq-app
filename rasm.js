@@ -93,12 +93,18 @@ function sharpen(cn,a){
 
 /* ---------- 4K ---------- */
 var AI="https://rasm-ai.muhammadaminergashev96.workers.dev";
-function aiCall(task,img){
+function aiCall(task,img,tries){
+  tries=tries||0;
   var base=fit(img,1280),url=base.toDataURL("image/jpeg",.9);
-  var ctl=window.AbortController?new AbortController():null,tm=setTimeout(function(){if(ctl)ctl.abort()},90000);
+  var ctl=window.AbortController?new AbortController():null,tm=setTimeout(function(){if(ctl)ctl.abort()},100000);
   return fetch(AI,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({task:task,image:url}),signal:ctl?ctl.signal:undefined})
-  .then(function(r){clearTimeout(tm);if(!r.ok)throw new Error("ai "+r.status);return r.blob()})
-  .then(function(b){return new Promise(function(res,rej){var u=URL.createObjectURL(b),im=new Image();im.onload=function(){URL.revokeObjectURL(u);res(im)};im.onerror=function(){URL.revokeObjectURL(u);rej(new Error("img"))};im.src=u})});
+  .then(function(r){clearTimeout(tm);if(!r.ok)return r.text().then(function(t){throw new Error(task+" "+r.status+" "+t.slice(0,150))});return r.blob()})
+  .then(function(b){return new Promise(function(res,rej){var u=URL.createObjectURL(b),im=new Image();im.onload=function(){URL.revokeObjectURL(u);res(im)};im.onerror=function(){URL.revokeObjectURL(u);rej(new Error(task+" img"))};im.src=u})})
+  .catch(function(e){
+    clearTimeout(tm);
+    if(tries<1)return new Promise(function(r){setTimeout(r,10000)}).then(function(){return aiCall(task,img,tries+1)});
+    throw e;
+  });
 }
 function aiGen(bi,tries){
   tries=tries||0;
