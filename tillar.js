@@ -1,46 +1,9 @@
 (function(){
-var TP=[
-{n:["Salomlashish","Приветствия"],u:["Salom","Xayr","Rahmat","Iltimos","Kechirasiz","Ha","Yo‘q","Qalaysiz?"]},
-{n:["Sonlar","Числа"],u:["Bir","Ikki","Uch","To‘rt","Besh","Olti","Yetti","Sakkiz","To‘qqiz","O‘n"]},
-{n:["Oila","Семья"],u:["Ota","Ona","Aka","Opa","O‘g‘il","Qiz","Bobo","Buvi"]},
-{n:["Ovqat va ichimlik","Еда и напитки"],u:["Non","Suv","Go‘sht","Sut","Choy","Olma","Guruch","Tuz"]},
-{n:["Ranglar","Цвета"],u:["Qizil","Ko‘k","Yashil","Sariq","Oq","Qora","Jigarrang","Pushti"]}
-];
-var LG=[
-{f:"🇬🇧",n:["Ingliz tili","Английский"],tts:"en-US",rtl:false,
- w:[["Hello","Goodbye","Thank you","Please","Sorry","Yes","No","How are you?"],
-    ["one","two","three","four","five","six","seven","eight","nine","ten"],
-    ["father","mother","brother","sister","son","daughter","grandfather","grandmother"],
-    ["bread","water","meat","milk","tea","apple","rice","salt"],
-    ["red","blue","green","yellow","white","black","brown","pink"]]},
-{f:"🇷🇺",n:["Rus tili","Русский"],tts:"ru-RU",rtl:false,
- w:[["Привет","До свидания","Спасибо","Пожалуйста","Извините","Да","Нет","Как дела?"],
-    ["один","два","три","четыре","пять","шесть","семь","восемь","девять","десять"],
-    ["папа","мама","брат","сестра","сын","дочь","дедушка","бабушка"],
-    ["хлеб","вода","мясо","молоко","чай","яблоко","рис","соль"],
-    ["красный","синий","зелёный","жёлтый","белый","чёрный","коричневый","розовый"]]},
-{f:"🇸🇦",n:["Arab tili","Арабский"],tts:"ar-SA",rtl:true,
- w:[["السلام عليكم","مع السلامة","شكرا","من فضلك","آسف","نعم","لا","كيف حالك؟"],
-    ["واحد","اثنان","ثلاثة","أربعة","خمسة","ستة","سبعة","ثمانية","تسعة","عشرة"],
-    ["أب","أم","أخ","أخت","ابن","بنت","جد","جدة"],
-    ["خبز","ماء","لحم","حليب","شاي","تفاحة","أرز","ملح"],
-    ["أحمر","أزرق","أخضر","أصفر","أبيض","أسود","بني","وردي"]],
- r:[["assalomu alaykum","maa salama","shukran","min fadlik","asif","naam","la","kayfa haluk"],
-    ["vohid","isnan","salasa","arbaa","xamsa","sitta","sabaa","samaniya","tisaa","ashara"],
-    ["ab","umm","ax","uxt","ibn","bint","jadd","jadda"],
-    ["xubz","maa","lahm","halib","shay","tuffaha","ruz","milh"],
-    ["ahmar","azraq","axdar","asfar","abyad","aswad","bunniy","vardiy"]]},
-{f:"🇹🇷",n:["Turk tili","Турецкий"],tts:"tr-TR",rtl:false,
- w:[["Merhaba","Hoşça kal","Teşekkürler","Lütfen","Özür dilerim","Evet","Hayır","Nasılsın?"],
-    ["bir","iki","üç","dört","beş","altı","yedi","sekiz","dokuz","on"],
-    ["baba","anne","abi","abla","oğul","kız","dede","nine"],
-    ["ekmek","su","et","süt","çay","elma","pirinç","tuz"],
-    ["kırmızı","mavi","yeşil","sarı","beyaz","siyah","kahverengi","pembe"]]}
-];
+var TP=TL.TP,LG=TL.LG;
 var P={
- uz:{tile:"Tillar",tileS:"Ingliz, rus, arab, turk",title:"Tillarni o‘rganish",topics:"Mavzular",cards:"Kartochkalar",test:"Test",tap:"Tarjimasini ko‘rish uchun bosing",q:"Savol",next:"Keyingi",fin:"Natijani ko‘rish",res:"Natija",again:"Qayta boshlash",words:"so‘z",note:""},
- oz:{tile:"Тиллар",tileS:"Инглиз, рус, араб, турк",title:"Тилларни ўрганиш",topics:"Мавзулар",cards:"Карточкалар",test:"Тест",tap:"Таржимасини кўриш учун босинг",q:"Савол",next:"Кейинги",fin:"Натижани кўриш",res:"Натижа",again:"Қайта бошлаш",words:"сўз",note:""},
- ru:{tile:"Языки",tileS:"Английский, русский, арабский, турецкий",title:"Изучение языков",topics:"Темы",cards:"Карточки",test:"Тест",tap:"Нажмите, чтобы увидеть перевод",q:"Вопрос",next:"Далее",fin:"Показать результат",res:"Результат",again:"Начать заново",words:"слов",note:"Переводы даны на узбекском языке."}
+ uz:{tile:"Tillar",tileS:"6 ta til",title:"Tillarni o‘rganish",topics:"Mavzular",cards:"Kartochkalar",test:"Test",tap:"Tarjimasini ko‘rish uchun bosing",q:"Savol",next:"Keyingi",fin:"Natijani ko‘rish",res:"Natija",again:"Qayta boshlash",words:"so‘z",note:""},
+ oz:{tile:"Тиллар",tileS:"6 та тил",title:"Тилларни ўрганиш",topics:"Мавзулар",cards:"Карточкалар",test:"Тест",tap:"Таржимасини кўриш учун босинг",q:"Савол",next:"Кейинги",fin:"Натижани кўриш",res:"Натижа",again:"Қайта бошлаш",words:"сўз",note:""},
+ ru:{tile:"Языки",tileS:"6 языков",title:"Изучение языков",topics:"Темы",cards:"Карточки",test:"Тест",tap:"Нажмите, чтобы увидеть перевод",q:"Вопрос",next:"Далее",fin:"Показать результат",res:"Результат",again:"Начать заново",words:"слов",note:"Переводы даны на узбекском языке."}
 };
 var M={a:"а",b:"б",d:"д",e:"е",f:"ф",g:"г",h:"ҳ",i:"и",j:"ж",k:"к",l:"л",m:"м",n:"н",o:"о",p:"п",q:"қ",r:"р",s:"с",t:"т",u:"у",v:"в",x:"х",y:"й",z:"з","’":"ъ","ʼ":"ъ"};
 function cyr(s){
