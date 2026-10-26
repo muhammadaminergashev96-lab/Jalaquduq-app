@@ -10,7 +10,7 @@ var P={
   n4:"Sun’iy intellekt rasmni kattalashtirib, aniqroq qiladi (3840 px gacha). 10–40 soniya ketishi mumkin.",
   nbg:"Sun’iy intellekt odamni ajratib, tanlangan fonga qo‘yadi. Odam aniq ko‘ringan rasm yaxshi chiqadi. 10–40 soniya ketishi mumkin.",
   chBg:"Fonni tanlang",chRe:"Uslubni tanlang",hint:"Yuklab olinmasa, rasmni brauzerda oching:",ext:"Brauzerda ochish",
-  nAiFail:"Sun’iy intellekt hozir javob bermadi, oddiy usul ishlatildi.",eSeg:"Odamni ajratish moduli yuklanmadi. Internetni tekshirib, qayta urinib ko‘ring.",eGen:"Xatolik yuz berdi. Boshqa rasm bilan urinib ko‘ring.",size:"O‘lcham"},
+  nGenFail:"Fon rasmi yaratilmadi, tayyor chizma fon ishlatildi.",nAiFail:"Sun’iy intellekt hozir javob bermadi, oddiy usul ishlatildi.",eSeg:"Odamni ajratish moduli yuklanmadi. Internetni tekshirib, qayta urinib ko‘ring.",eGen:"Xatolik yuz berdi. Boshqa rasm bilan urinib ko‘ring.",size:"O‘lcham"},
  ru:{tile:"Фото",tileS:"4K, фон, ретро",title:"Фото-монтаж",
   k4:"Качество 4K",k4d:"Увеличивает фото до размера 4K",
   bg:"Фон",bgd:"Ставит фон: пейзаж или Кааба",
@@ -19,8 +19,15 @@ var P={
   n4:"ИИ увеличивает фото и делает его чётче (до 3840 px). Это может занять 10–40 секунд.",
   nbg:"ИИ вырезает человека и ставит на выбранный фон. Лучше всего — фото, где человек хорошо виден. Может занять 10–40 секунд.",
   chBg:"Выберите фон",chRe:"Выберите стиль",hint:"Если не скачивается, откройте приложение в браузере:",ext:"Открыть в браузере",
-  nAiFail:"ИИ сейчас не ответил, использован простой способ.",eSeg:"Не загрузился модуль выделения человека. Проверьте интернет и попробуйте ещё раз.",eGen:"Произошла ошибка. Попробуйте другое фото.",size:"Размер"}
+  nGenFail:"Фон не создался, использован нарисованный фон.",nAiFail:"ИИ сейчас не ответил, использован простой способ.",eSeg:"Не загрузился модуль выделения человека. Проверьте интернет и попробуйте ещё раз.",eGen:"Произошла ошибка. Попробуйте другое фото.",size:"Размер"}
 };
+var BGP=[
+"photorealistic sunset over mountains, dramatic orange and purple sky, empty landscape, no people, cinematic, high detail",
+"photorealistic serene alpine lake with snowy mountains reflection, clear morning light, empty landscape, no people, high detail",
+"photorealistic lush green valley with rolling hills and blue sky with white clouds, empty landscape, no people, high detail",
+"photorealistic night sky full of stars and milky way over silhouetted mountains, empty landscape, no people, high detail",
+"photorealistic golden sand dunes desert at sunset, warm light, empty landscape, no people, high detail",
+"photorealistic Kaaba in Masjid al-Haram Mecca at dusk, wide view, soft golden light, empty plaza, no people in foreground, high detail"];
 var BGN=[["Quyosh botishi, tog‘lar","Закат в горах"],["Ko‘l va tog‘lar","Озеро и горы"],["Yashil vodiy","Зелёная долина"],["Tungi osmon","Ночное небо"],["Sahro","Пустыня"],["Ka’ba","Кааба"]];
 var REN=[["Film (90-yillar)","Плёнка 90-х"],["VHS kassetasi","VHS-кассета"],["Polaroid","Полароид"],["Eski qora-oq","Старое чёрно-белое"]];
 
@@ -91,6 +98,12 @@ function aiCall(task,img){
   var ctl=window.AbortController?new AbortController():null,tm=setTimeout(function(){if(ctl)ctl.abort()},90000);
   return fetch(AI,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({task:task,image:url}),signal:ctl?ctl.signal:undefined})
   .then(function(r){clearTimeout(tm);if(!r.ok)throw new Error("ai "+r.status);return r.blob()})
+  .then(function(b){return new Promise(function(res,rej){var u=URL.createObjectURL(b),im=new Image();im.onload=function(){URL.revokeObjectURL(u);res(im)};im.onerror=function(){URL.revokeObjectURL(u);rej(new Error("img"))};im.src=u})});
+}
+function aiGen(bi){
+  var ctl=window.AbortController?new AbortController():null,tm=setTimeout(function(){if(ctl)ctl.abort()},90000);
+  return fetch(AI,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({task:"gen",prompt:BGP[bi]}),signal:ctl?ctl.signal:undefined})
+  .then(function(r){clearTimeout(tm);if(!r.ok)throw new Error("gen "+r.status);return r.blob()})
   .then(function(b){return new Promise(function(res,rej){var u=URL.createObjectURL(b),im=new Image();im.onload=function(){URL.revokeObjectURL(u);res(im)};im.onerror=function(){URL.revokeObjectURL(u);rej(new Error("img"))};im.src=u})});
 }
 function local4k(img){
@@ -344,13 +357,15 @@ function composite(base,mask,bi){
   var out=cv(w,h),ox=out.getContext("2d");BG[bi](ox,w,h,focus);ox.drawImage(pc,0,0);
   return out;
 }
-function compCut(cut,bi){
+function compCut(cut,bi,bgi){
   var w=cut.naturalWidth||cut.width,h=cut.naturalHeight||cut.height,k=Math.min(1,2400/Math.max(w,h));w=Math.round(w*k);h=Math.round(h*k);
   var pc=cv(w,h),px=pc.getContext("2d");px.drawImage(cut,0,0,w,h);
   var d=px.getImageData(0,0,w,h).data,sx=0,sw=0;
   for(var o=3,q=0;o<d.length;o+=4,q++){if(d[o]>128&&q%7===0){sx+=q%w;sw++}}
   var cx=sw>50?sx/sw/w:.5,focus=cx<.5?.72:.28;
-  var out=cv(w,h),ox=out.getContext("2d");BG[bi](ox,w,h,focus);ox.drawImage(pc,0,0);
+  var out=cv(w,h),ox=out.getContext("2d");
+  if(bgi){var bw=bgi.naturalWidth||bgi.width,bh=bgi.naturalHeight||bgi.height,sc=Math.max(w/bw,h/bh),dw=bw*sc,dh=bh*sc;ox.drawImage(bgi,(w-dw)/2,(h-dh)/2,dw,dh)}else BG[bi](ox,w,h,focus);
+  ox.drawImage(pc,0,0);
   return out;
 }
 function localBg(img,bi){
@@ -360,7 +375,8 @@ function localBg(img,bi){
   }).then(function(mask){return composite(base,mask,bi)});
 }
 function doBg(img,bi){
-  return aiCall("bg",img).then(function(cut){return compCut(cut,bi)}).catch(function(){S.note="nAiFail";return localBg(img,bi)});
+  var gen=aiGen(bi).catch(function(){S.note="nGenFail";return null});
+  return aiCall("bg",img).then(function(cut){return gen.then(function(g){return compCut(cut,bi,g)})}).catch(function(){S.note="nAiFail";return localBg(img,bi)});
 }
 
 /* ---------- interfeys ---------- */
