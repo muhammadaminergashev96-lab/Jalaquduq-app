@@ -21,9 +21,9 @@ function cyr(s){
 }
 function tr(s){return LANG==="oz"?cyr(s):s}
 var UI={
-uz:{tile:"Yosh kalkulyatori",tileS:"Necha yoshdasiz?",title:"Yosh kalkulyatori",lab:"Tug‘ilgan sanangiz",calc:"Hisoblash",ph:"Sanani tanlang",age:"Yoshingiz",y:"yil",m:"oy",d:"kun",tot:"Tug‘ilganingizdan beri o‘tgan vaqt",days:"kun",weeks:"hafta",months:"oy",hours:"soat",next:"Keyingi tug‘ilgan kuningizgacha",today:"Bugun tug‘ilgan kuningiz! 🎉",born:"Tug‘ilgan hafta kuni",zod:"Burjingiz",bad:"Sana noto‘g‘ri yoki kelajakda",enter:"Tug‘ilgan sanangizni tanlang",wd:["Yakshanba","Dushanba","Seshanba","Chorshanba","Payshanba","Juma","Shanba"],
+uz:{tile:"Yosh kalkulyatori",tileS:"Necha yoshdasiz?",title:"Yosh kalkulyatori",lab:"Tug‘ilgan sanangiz",calc:"Hisoblash",age:"Yoshingiz",y:"yil",m:"oy",d:"kun",tot:"Tug‘ilganingizdan beri o‘tgan vaqt",days:"kun",weeks:"hafta",months:"oy",hours:"soat",next:"Keyingi tug‘ilgan kuningizgacha",today:"Bugun tug‘ilgan kuningiz! 🎉",born:"Tug‘ilgan hafta kuni",zod:"Burjingiz",mu:"Muchalingiz",ph:"KK.OO.YYYY",hint:"Kun, oy va yilni raqamlar bilan yozing, masalan: 17.07.1996",mn:["Sichqon","Sigir","Yo‘lbars","Quyon","Ajdaho","Ilon","Ot","Qo‘y","Maymun","Tovuq","It","To‘ng‘iz"],mnote:"Muchal xitoy yangi yili (yanvar oxiri – fevral o‘rtasi) bo‘yicha aniqlanadi.",bad:"Sana noto‘g‘ri yoki kelajakda",enter:"Tug‘ilgan sanangizni tanlang",wd:["Yakshanba","Dushanba","Seshanba","Chorshanba","Payshanba","Juma","Shanba"],
  z:["Tog‘ echkisi","Qovg‘a","Baliqlar","Qo‘y","Buzoq","Egizaklar","Qisqichbaqa","Sher","Parizod","Tarozi","Chayon","Mergan"]},
-ru:{tile:"Калькулятор возраста",tileS:"Сколько вам лет?",title:"Калькулятор возраста",lab:"Дата рождения",calc:"Рассчитать",ph:"Выберите дату",age:"Ваш возраст",y:"лет",m:"мес.",d:"дн.",tot:"С момента рождения прошло",days:"дней",weeks:"недель",months:"месяцев",hours:"часов",next:"До следующего дня рождения",today:"Сегодня ваш день рождения! 🎉",born:"День недели рождения",zod:"Знак зодиака",bad:"Дата неверна или в будущем",enter:"Выберите дату рождения",wd:["Воскресенье","Понедельник","Вторник","Среда","Четверг","Пятница","Суббота"],
+ru:{tile:"Калькулятор возраста",tileS:"Сколько вам лет?",title:"Калькулятор возраста",lab:"Дата рождения",calc:"Рассчитать",age:"Ваш возраст",y:"лет",m:"мес.",d:"дн.",tot:"С момента рождения прошло",days:"дней",weeks:"недель",months:"месяцев",hours:"часов",next:"До следующего дня рождения",today:"Сегодня ваш день рождения! 🎉",born:"День недели рождения",zod:"Знак зодиака",mu:"Животное по году",ph:"ДД.ММ.ГГГГ",hint:"Введите день, месяц и год цифрами, например: 17.07.1996",mn:["Крыса","Бык","Тигр","Кролик","Дракон","Змея","Лошадь","Коза","Обезьяна","Петух","Собака","Свинья"],mnote:"Животное года определяется по китайскому новому году (конец января – середина февраля).",bad:"Дата неверна или в будущем",enter:"Выберите дату рождения",wd:["Воскресенье","Понедельник","Вторник","Среда","Четверг","Пятница","Суббота"],
  z:["Козерог","Водолей","Рыбы","Овен","Телец","Близнецы","Рак","Лев","Дева","Весы","Скорпион","Стрелец"]}
 };
 function p(k){return LANG==="ru"?UI.ru[k]:tr(UI.uz[k])}
@@ -45,11 +45,15 @@ function calc(y,mo,d,now){
   var t0=Date.UTC(by,bm-1,bd),t1=Date.UTC(ny,nm-1,nd),days=Math.round((t1-t0)/864e5);
   var nb=Date.UTC(ny,bm-1,bd);if(bm===2&&bd===29&&new Date(ny,1,29).getMonth()!==1)nb=Date.UTC(ny,2,1);
   if(nb<t1){var y2=ny+1;nb=Date.UTC(y2,bm-1,bd);if(bm===2&&bd===29&&new Date(y2,1,29).getMonth()!==1)nb=Date.UTC(y2,2,1)}
-  return {Y:Y,M:Mm,D:D,days:days,next:Math.round((nb-t1)/864e5),wd:new Date(by,bm-1,bd).getDay(),zi:zodiac(bm,bd),months:Y*12+Mm};
+  return {Y:Y,M:Mm,D:D,days:days,next:Math.round((nb-t1)/864e5),wd:new Date(by,bm-1,bd).getDay(),zi:zodiac(bm,bd),mu:muchal(by,bm,bd),months:Y*12+Mm};
 }
 var S={v:""};try{S.v=localStorage.getItem("yosh")||""}catch(e){}
+if(/^\d{4}-\d{2}-\d{2}$/.test(S.v)){var q=S.v.split("-");S.v=q[2]+"."+q[1]+"."+q[0]}
+var EM=["🐭","🐮","🐯","🐰","🐲","🐍","🐴","🐑","🐵","🐔","🐶","🐷"];
+function maskIn(v){var d=v.replace(/\D/g,"").slice(0,8),o=d.slice(0,2);if(d.length>2)o+="."+d.slice(2,4);if(d.length>4)o+="."+d.slice(4);return o}
+function muchal(y,m,d){var ry=y;try{var r=new Intl.DateTimeFormat("en-u-ca-chinese",{year:"numeric"}).formatToParts(new Date(y,m-1,d)).filter(function(x){return x.type==="relatedYear"})[0];if(r)ry=+r.value}catch(e){}return ((ry-4)%12+12)%12}
 var css=document.createElement("style");
-css.textContent=".ys-in{width:100%;padding:13px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--text);font-size:17px;font-family:inherit;margin:6px 0 10px;box-sizing:border-box}.ys-b{width:100%;padding:14px;border:0;border-radius:12px;background:var(--acc);color:#fff;font-weight:700;font-size:16px;font-family:inherit}.ys-big{text-align:center;margin:16px 0 6px}.ys-big b{font-size:44px;color:var(--acc);line-height:1}.ys-big span{display:block;color:var(--mut);font-size:14px;margin-top:4px}.ys-sm{text-align:center;font-size:17px;font-weight:700;margin-bottom:12px}.ys-g{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}.ys-g div{background:var(--accbg);border-radius:12px;padding:12px;text-align:center}.ys-g b{display:block;font-size:18px;color:var(--acc)}.ys-g span{font-size:12px;color:var(--mut)}.ys-r{display:flex;justify-content:space-between;padding:11px 2px;border-top:1px solid var(--line);font-size:15px}.ys-r span{color:var(--mut)}.ys-e{color:var(--dn);text-align:center;margin-top:10px}";
+css.textContent=".ys-in{text-align:center;letter-spacing:2px;width:100%;padding:13px;border-radius:12px;border:1px solid var(--line);background:var(--bg);color:var(--text);font-size:17px;font-family:inherit;margin:6px 0 10px;box-sizing:border-box}.ys-b{width:100%;padding:14px;border:0;border-radius:12px;background:var(--acc);color:#fff;font-weight:700;font-size:16px;font-family:inherit}.ys-big{text-align:center;margin:16px 0 6px}.ys-big b{font-size:44px;color:var(--acc);line-height:1}.ys-big span{display:block;color:var(--mut);font-size:14px;margin-top:4px}.ys-sm{text-align:center;font-size:17px;font-weight:700;margin-bottom:12px}.ys-g{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:8px 0}.ys-g div{background:var(--accbg);border-radius:12px;padding:12px;text-align:center}.ys-g b{display:block;font-size:18px;color:var(--acc)}.ys-g span{font-size:12px;color:var(--mut)}.ys-r{display:flex;justify-content:space-between;padding:11px 2px;border-top:1px solid var(--line);font-size:15px}.ys-r span{color:var(--mut)}.ys-e{color:var(--dn);text-align:center;margin-top:10px}";
 document.head.appendChild(css);
 var sec=document.createElement("div");sec.className="sec";sec.id="yosh";document.body.appendChild(sec);
 var tile=document.createElement("button");tile.className="tile";tile.style.background="linear-gradient(135deg,#7c3aed,#c084fc)";
@@ -58,21 +62,21 @@ function updTile(){tile.innerHTML='<div class="ic">🎂</div><b>'+p("tile")+'</b
 function result(){
   var el=$("ysr");if(!el)return;
   if(!S.v){el.innerHTML="";return}
-  var a=S.v.split("-"),y=+a[0],m=+a[1],d=+a[2],now=new Date(),t=new Date(y,m-1,d);
-  if(!y||y<1900||t.getMonth()!==m-1||t>now){el.innerHTML='<div class="ys-e">'+p("bad")+'</div>';return}
+  var a=S.v.split("."),y=+a[2],m=+a[1],d=+a[0],now=new Date(),t=new Date(y,m-1,d);
+  if(a.length!==3||String(a[2]).length!==4||y<1900||t.getMonth()!==m-1||t.getDate()!==d||t>now){el.innerHTML='<div class="ys-e">'+p("bad")+'</div>';return}
   try{localStorage.setItem("yosh",S.v)}catch(e){}
   var r=calc(y,m,d,now);
   el.innerHTML='<div class="ys-big"><b>'+r.Y+'</b><span>'+p("age")+' · '+r.Y+' '+p("y")+' '+r.M+' '+p("m")+' '+r.D+' '+p("d")+'</span></div>'+
   '<div class="ys-sm">'+(r.next===0?p("today"):p("next")+': '+r.next+' '+p("days"))+'</div>'+
   '<div class="sub" style="text-align:center;margin:0">'+p("tot")+'</div>'+
   '<div class="ys-g"><div><b>'+fmt(r.days)+'</b><span>'+p("days")+'</span></div><div><b>'+fmt(Math.floor(r.days/7))+'</b><span>'+p("weeks")+'</span></div><div><b>'+fmt(r.months)+'</b><span>'+p("months")+'</span></div><div><b>'+fmt(r.days*24)+'</b><span>'+p("hours")+'</span></div></div>'+
-  '<div class="ys-r"><span>'+p("born")+'</span><b>'+pa("wd",r.wd)+'</b></div><div class="ys-r"><span>'+p("zod")+'</span><b>'+pa("z",r.zi)+'</b></div>';
+  '<div class="ys-r"><span>'+p("born")+'</span><b>'+pa("wd",r.wd)+'</b></div><div class="ys-r"><span>'+p("zod")+'</span><b>'+pa("z",r.zi)+'</b></div><div class="ys-r"><span>'+p("mu")+'</span><b>'+EM[r.mu]+" "+pa("mn",r.mu)+'</b></div><div class="sub" style="margin:6px 0 0;font-size:12px">'+p("mnote")+'</div>';
 }
 function draw(){
-  sec.innerHTML='<button class="back" id="yb">← '+T[LANG].back+'</button><div class="card"><h2>'+p("title")+'</h2><div class="sub" style="margin:0">'+p("lab")+'</div><input class="ys-in" id="yd" type="date" min="1900-01-01" max="'+new Date().getFullYear()+'-12-31" value="'+S.v+'"><button class="ys-b" id="yc">'+p("calc")+'</button><div id="ysr"></div></div>';
+  sec.innerHTML='<button class="back" id="yb">← '+T[LANG].back+'</button><div class="card"><h2>'+p("title")+'</h2><div class="sub" style="margin:0">'+p("lab")+'</div><input class="ys-in" id="yd" type="text" inputmode="numeric" autocomplete="off" maxlength="10" placeholder="'+p("ph")+'" value="'+S.v+'"><div class="sub" style="margin:-4px 0 10px;font-size:12px">'+p("hint")+'</div><button class="ys-b" id="yc">'+p("calc")+'</button><div id="ysr"></div></div>';
   $("yb").addEventListener("click",function(){show("home")});
   $("yc").addEventListener("click",function(){S.v=$("yd").value;if(!S.v){$("ysr").innerHTML='<div class="ys-e">'+p("enter")+'</div>';return}result()});
-  $("yd").addEventListener("change",function(){S.v=this.value;result()});
+  $("yd").addEventListener("input",function(){var o=maskIn(this.value);this.value=o;S.v=o;if(o.length===10)result();else if($("ysr"))$("ysr").innerHTML=""});
   result();
 }
 tile.addEventListener("click",function(){draw();show("yosh")});
