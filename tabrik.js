@@ -23,14 +23,14 @@ function tr(s){return LANG==="oz"?cyr(s):s}
 
 var UI={
 uz:{tile:"Tabrik",tileS:"Tug‘ilgan kunga",title:"Tug‘ilgan kun tabrigi",who:"Kimga?",name:"Ismi (ixtiyoriy)",age:"Yoshi (ixtiyoriy)",tone:"Uslub",form:"Murojaat",sen:"Sen",siz:"Siz",
- make:"Tabrik yaratish",another:"Boshqa variant",copy:"Nusxalash",copied:"Nusxalandi ✓",share:"Ulashish",card:"Ochiqcha yaratish",theme:"Rang",dl:"Yuklab olish",shr:"Rasmni ulashish",
+ make:"Tabrik yaratish",another:"Boshqa variant",copy:"Nusxalash",copied:"Nusxalandi ✓",share:"Ulashish",card:"Ochiqcha yaratish",theme:"Rang",dl:"Yuklab olish",hold:"Rasmni bosib turing va “Rasmni saqlash” yoki “Ulashish”ni tanlang",close:"Yopish",shr:"Rasmni ulashish",
  photoAdd:"Rasm qo‘shish (ixtiyoriy)",photoChange:"Rasmni almashtirish",photoDel:"Rasmni olib tashlash",hint:"Matnni o‘zgartirishingiz mumkin. Yuklab olinmasa, “Rasmni ulashish” yoki rasmni bosib turib saqlang.",ph:"Masalan: Aziz",
  r:{ota:"Ota",ona:"Ona",dost:"Do‘st",opa:"Opa",singil:"Singil",aka:"Aka",uka:"Uka",umr:"Umr yo‘ldosh",ustoz:"Ustoz",hamkasb:"Hamkasb",farzand:"Farzand"},
  t:{samimiy:"Samimiy",rasmiy:"Rasmiy",hazil:"Hazil",duo:"Duo"},
  head:"Tug‘ilgan kuning muborak!",headSiz:"Tug‘ilgan kuningiz muborak!",
  th:["Pushti","Ko‘k","Yashil","Binafsha","Oltin"]},
 ru:{tile:"Поздравление",tileS:"С днём рождения",title:"Поздравление с днём рождения",who:"Кому?",name:"Имя (необязательно)",age:"Возраст (необязательно)",tone:"Стиль",form:"Обращение",sen:"На «ты»",siz:"На «Вы»",
- make:"Создать поздравление",another:"Другой вариант",copy:"Копировать",copied:"Скопировано ✓",share:"Поделиться",card:"Создать открытку",theme:"Цвет",dl:"Скачать",shr:"Поделиться картинкой",
+ make:"Создать поздравление",another:"Другой вариант",copy:"Копировать",copied:"Скопировано ✓",share:"Поделиться",card:"Создать открытку",theme:"Цвет",dl:"Скачать",hold:"Нажмите на фото и удерживайте, затем выберите «Сохранить» или «Поделиться»",close:"Закрыть",shr:"Поделиться картинкой",
  photoAdd:"Добавить фото (необязательно)",photoChange:"Заменить фото",photoDel:"Убрать фото",hint:"Текст можно изменить. Если не скачивается, нажмите «Поделиться картинкой» или удерживайте картинку и сохраните.",ph:"Например: Азиз",
  r:{ota:"Папа",ona:"Мама",dost:"Друг",opa:"Сестра старшая",singil:"Сестра младшая",aka:"Брат старший",uka:"Брат младший",umr:"Любимый человек",ustoz:"Учитель",hamkasb:"Коллега",farzand:"Ребёнок"},
  t:{samimiy:"Тёплое",rasmiy:"Официальное",hazil:"С юмором",duo:"Пожелание"},
@@ -197,7 +197,7 @@ function draw(keep){
      '<div class="tk-r"><button class="tk-b" id="tcp">'+p("copy")+'</button><button class="tk-b" id="tsh">'+p("share")+'</button></div>'+
      '<div class="tk-l" id="tcard">'+p("card")+'</div><div class="tk-sw">'+THEMES.map(function(t,i){return '<button data-th="'+i+'" class="'+(i===S.theme?'on':'')+'" style="background:linear-gradient(135deg,'+t[0]+','+t[1]+')" title="'+pr("th",i)+'"></button>'}).join("")+'</div>'+
      '<label class="tk-b l" style="text-align:center">📷 '+(S.photo?p("photoChange"):p("photoAdd"))+'<input type="file" accept="image/*" id="tph" hidden></label>'+(S.photo?'<button class="tk-b l" id="tpd">'+p("photoDel")+'</button>':'')+'<button class="tk-b l" id="tmc">🖼️ '+p("card")+'</button>';
-    if(S.out)h+='<img class="tk-img" src="'+S.out.url+'" alt=""><div class="tk-r"><button class="tk-b" id="tdl">'+p("dl")+'</button>'+((navigator.share&&typeof File!=="undefined")?'<button class="tk-b" id="tis">'+p("shr")+'</button>':'')+'</div><div class="sub" style="margin:10px 0 0">'+p("hint")+'</div>';
+    if(S.out)h+='<img class="tk-img" src="'+S.out.url+'" alt=""><div class="tk-r"><button class="tk-b" id="tdl">'+p("dl")+'</button>'+'<button class="tk-b" id="tis">'+p("shr")+'</button>'+'</div><div class="sub" style="margin:10px 0 0">'+p("hint")+'</div>';
   }
   h+='</div>';sec.innerHTML=h;
   function on(sel,fn){var bs=sec.querySelectorAll(sel);for(var i=0;i<bs.length;i++)(function(b){b.addEventListener("click",function(e){fn(b,e)})})(bs[i])}
@@ -217,8 +217,24 @@ function draw(keep){
   var tph=$("tph");if(tph)tph.addEventListener("change",function(){var f=tph.files&&tph.files[0];if(!f)return;if(S.photoUrl)try{URL.revokeObjectURL(S.photoUrl)}catch(e){}var u=URL.createObjectURL(f),im=new Image();im.onload=function(){S.photo=im;S.photoUrl=u;S.out=null;draw()};im.src=u});
   var tpd=$("tpd");if(tpd)tpd.addEventListener("click",function(){S.photo=null;S.out=null;draw()});
   var mc=$("tmc");if(mc)mc.addEventListener("click",makeCard);
-  var dl=$("tdl");if(dl)dl.addEventListener("click",function(){var a=document.createElement("a");a.href=S.out.url;a.download="tabrik.jpg";document.body.appendChild(a);a.click();document.body.removeChild(a)});
-  var is=$("tis");if(is)is.addEventListener("click",function(){try{var f=new File([S.out.blob],"tabrik.jpg",{type:"image/jpeg"});if(navigator.canShare&&navigator.canShare({files:[f]})){navigator.share({files:[f]}).catch(function(){});return}}catch(e){}dl&&dl.click()});
+  function inTg(){try{return !!(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initData)}catch(e){return false}}
+  function full(){
+    var r=new FileReader();r.onload=function(){
+      var o=document.createElement("div");o.style.cssText="position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px;gap:12px";
+      o.innerHTML='<img src="'+r.result+'" style="max-width:100%;max-height:72vh;border-radius:12px;-webkit-touch-callout:default;-webkit-user-select:auto;user-select:auto"><div style="color:#fff;text-align:center;font-size:15px;line-height:1.4">'+p("hold")+'</div><button style="padding:12px 28px;border:0;border-radius:12px;background:#fff;color:#000;font-weight:700;font-size:15px">'+p("close")+'</button>';
+      o.querySelector("button").onclick=function(){document.body.removeChild(o)};
+      document.body.appendChild(o);
+    };r.readAsDataURL(S.out.blob);
+  }
+  function shareImg(){
+    try{var f=new File([S.out.blob],"tabrik.jpg",{type:"image/jpeg"});if(navigator.canShare&&navigator.canShare({files:[f]})){navigator.share({files:[f]}).catch(function(){});return true}}catch(e){}
+    return false;
+  }
+  var dl=$("tdl");if(dl)dl.addEventListener("click",function(){
+    if(inTg()){full();return}
+    try{var a=document.createElement("a");a.href=S.out.url;a.download="tabrik.jpg";document.body.appendChild(a);a.click();document.body.removeChild(a)}catch(e){full()}
+  });
+  var is=$("tis");if(is)is.addEventListener("click",function(){if(!shareImg())full()});
 }
 function copy(t,btn){
   function ok(){var o=btn.textContent;btn.textContent=p("copied");setTimeout(function(){btn.textContent=p("copy")},1500)}
