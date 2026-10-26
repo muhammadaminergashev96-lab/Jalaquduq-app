@@ -13,8 +13,7 @@ var DATA={
  boshqa:[]
 };
 /* MA'LUMOTLAR TUGADI */
-
-var CATS=[["oshxona","🍽️"],["mehmonxona","🏨"],["dokon","🛒"],["dorixona","💊"],["shifoxona","🏥"],["yoqilgi","⛽"],["boshqa","📌"]];
+var CATS=[["masjid","🕌"],["oshxona","🍽️"],["mehmonxona","🏨"],["dokon","🛒"],["dorixona","💊"],["shifoxona","🏥"],["yoqilgi","⛽"],["boshqa","📌"]];
 var NM={
  oshxona:["Oshxonalar","Ошхоналар","Столовые и кафе"],
  mehmonxona:["Mehmonxonalar","Меҳмонхоналар","Гостиницы"],
