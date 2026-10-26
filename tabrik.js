@@ -217,11 +217,12 @@ function draw(keep){
   var tph=$("tph");if(tph)tph.addEventListener("change",function(){var f=tph.files&&tph.files[0];if(!f)return;if(S.photoUrl)try{URL.revokeObjectURL(S.photoUrl)}catch(e){}var u=URL.createObjectURL(f),im=new Image();im.onload=function(){S.photo=im;S.photoUrl=u;S.out=null;draw()};im.src=u});
   var tpd=$("tpd");if(tpd)tpd.addEventListener("click",function(){S.photo=null;S.out=null;draw()});
   var mc=$("tmc");if(mc)mc.addEventListener("click",makeCard);
+  var AIW="https://rasm-ai.muhammadaminergashev96.workers.dev";
   function inTg(){try{return !!(window.Telegram&&Telegram.WebApp&&Telegram.WebApp.initData)}catch(e){return false}}
   function full(){
     var r=new FileReader();r.onload=function(){
       var o=document.createElement("div");o.style.cssText="position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:14px;gap:12px";
-      o.innerHTML='<img src="'+r.result+'" style="max-width:100%;max-height:72vh;border-radius:12px;-webkit-touch-callout:default;-webkit-user-select:auto;user-select:auto"><div style="color:#fff;text-align:center;font-size:15px;line-height:1.4">'+p("hold")+'</div><button style="padding:12px 28px;border:0;border-radius:12px;background:#fff;color:#000;font-weight:700;font-size:15px">'+p("close")+'</button>';
+      o.innerHTML='<img src="'+r.result+'" style="max-width:100%;max-height:72vh;border-radius:12px"><div style="color:#fff;text-align:center;font-size:15px;line-height:1.4">'+p("hold")+'</div><button style="padding:12px 28px;border:0;border-radius:12px;background:#fff;color:#000;font-weight:700;font-size:15px">'+p("close")+'</button>';
       o.querySelector("button").onclick=function(){document.body.removeChild(o)};
       document.body.appendChild(o);
     };r.readAsDataURL(S.out.blob);
@@ -230,11 +231,29 @@ function draw(keep){
     try{var f=new File([S.out.blob],"tabrik.jpg",{type:"image/jpeg"});if(navigator.canShare&&navigator.canShare({files:[f]})){navigator.share({files:[f]}).catch(function(){});return true}}catch(e){}
     return false;
   }
+  function hosted(cb){
+    var ctl=window.AbortController?new AbortController():null,t=setTimeout(function(){ctl&&ctl.abort()},20000);
+    fetch(AIW+"/up",{method:"POST",body:S.out.blob,signal:ctl?ctl.signal:undefined}).then(function(r){return r.json()}).then(function(j){clearTimeout(t);cb(j&&j.url?j.url:null)}).catch(function(){clearTimeout(t);cb(null)});
+  }
+  function saveImg(btn,mode){
+    var old=btn.textContent;btn.textContent="⏳";btn.disabled=true;
+    function done(){btn.textContent=old;btn.disabled=false}
+    hosted(function(u){
+      done();
+      if(!u){full();return}
+      try{
+        var W=window.Telegram&&Telegram.WebApp;
+        if(mode==="dl"&&W&&W.downloadFile&&W.isVersionAtLeast&&W.isVersionAtLeast("8.0")){W.downloadFile({url:u,file_name:"tabrik.jpg"});return}
+        if(W&&W.openLink){W.openLink(u);return}
+      }catch(e){}
+      window.open(u,"_blank");
+    });
+  }
   var dl=$("tdl");if(dl)dl.addEventListener("click",function(){
-    if(inTg()){full();return}
+    if(inTg()){saveImg(dl,"dl");return}
     try{var a=document.createElement("a");a.href=S.out.url;a.download="tabrik.jpg";document.body.appendChild(a);a.click();document.body.removeChild(a)}catch(e){full()}
   });
-  var is=$("tis");if(is)is.addEventListener("click",function(){if(!shareImg())full()});
+  var is=$("tis");if(is)is.addEventListener("click",function(){if(shareImg())return;if(inTg()){saveImg(is,"sh")}else full()});
 }
 function copy(t,btn){
   function ok(){var o=btn.textContent;btn.textContent=p("copied");setTimeout(function(){btn.textContent=p("copy")},1500)}
