@@ -23,14 +23,14 @@ function tr(s){return LANG==="oz"?cyr(s):s}
 
 var UI={
 uz:{tile:"Tabrik",tileS:"Tug‘ilgan kunga",title:"Tug‘ilgan kun tabrigi",who:"Kimga?",name:"Ismi (ixtiyoriy)",age:"Yoshi (ixtiyoriy)",tone:"Uslub",form:"Murojaat",sen:"Sen",siz:"Siz",
- make:"Tabrik yaratish",another:"Boshqa variant",copy:"Nusxalash",copied:"Nusxalandi ✓",share:"Ulashish",card:"Ochiqcha yaratish",theme:"Rang",dl:"Yuklab olish",hold:"Rasmni bosib turing va “Rasmni saqlash” yoki “Ulashish”ni tanlang",close:"Yopish",shr:"Rasmni ulashish",
+ make:"Tabrik yaratish",another:"Boshqa variant",copy:"Nusxalash",copied:"Nusxalandi ✓",share:"Ulashish",card:"Ochiqcha yaratish",theme:"Rang",dl:"Yuklab olish",hold:"Rasmni bosib turing va “Rasmni saqlash” yoki “Ulashish”ni tanlang",close:"Yopish",afterSh:"Rasmni yuklab olish oynasida “Yuklab olish”ni bosing. Keyin Telegramda 📎 orqali galereyadan yuboring",shr:"Rasmni ulashish",
  photoAdd:"Rasm qo‘shish (ixtiyoriy)",photoChange:"Rasmni almashtirish",photoDel:"Rasmni olib tashlash",hint:"Matnni o‘zgartirishingiz mumkin. Yuklab olinmasa, “Rasmni ulashish” yoki rasmni bosib turib saqlang.",ph:"Masalan: Aziz",
  r:{ota:"Ota",ona:"Ona",dost:"Do‘st",opa:"Opa",singil:"Singil",aka:"Aka",uka:"Uka",umr:"Umr yo‘ldosh",ustoz:"Ustoz",hamkasb:"Hamkasb",farzand:"Farzand"},
  t:{samimiy:"Samimiy",rasmiy:"Rasmiy",hazil:"Hazil",duo:"Duo"},
  head:"Tug‘ilgan kuning muborak!",headSiz:"Tug‘ilgan kuningiz muborak!",
  th:["Pushti","Ko‘k","Yashil","Binafsha","Oltin"]},
 ru:{tile:"Поздравление",tileS:"С днём рождения",title:"Поздравление с днём рождения",who:"Кому?",name:"Имя (необязательно)",age:"Возраст (необязательно)",tone:"Стиль",form:"Обращение",sen:"На «ты»",siz:"На «Вы»",
- make:"Создать поздравление",another:"Другой вариант",copy:"Копировать",copied:"Скопировано ✓",share:"Поделиться",card:"Создать открытку",theme:"Цвет",dl:"Скачать",hold:"Нажмите на фото и удерживайте, затем выберите «Сохранить» или «Поделиться»",close:"Закрыть",shr:"Поделиться картинкой",
+ make:"Создать поздравление",another:"Другой вариант",copy:"Копировать",copied:"Скопировано ✓",share:"Поделиться",card:"Создать открытку",theme:"Цвет",dl:"Скачать",hold:"Нажмите на фото и удерживайте, затем выберите «Сохранить» или «Поделиться»",close:"Закрыть",afterSh:"Нажмите «Скачать» в окне загрузки. Затем отправьте фото из галереи через 📎 в Telegram",shr:"Поделиться картинкой",
  photoAdd:"Добавить фото (необязательно)",photoChange:"Заменить фото",photoDel:"Убрать фото",hint:"Текст можно изменить. Если не скачивается, нажмите «Поделиться картинкой» или удерживайте картинку и сохраните.",ph:"Например: Азиз",
  r:{ota:"Папа",ona:"Мама",dost:"Друг",opa:"Сестра старшая",singil:"Сестра младшая",aka:"Брат старший",uka:"Брат младший",umr:"Любимый человек",ustoz:"Учитель",hamkasb:"Коллега",farzand:"Ребёнок"},
  t:{samimiy:"Тёплое",rasmiy:"Официальное",hazil:"С юмором",duo:"Пожелание"},
@@ -243,7 +243,7 @@ function draw(keep){
       if(!u){full();return}
       try{
         var W=window.Telegram&&Telegram.WebApp;
-        if(mode==="dl"&&W&&W.downloadFile&&W.isVersionAtLeast&&W.isVersionAtLeast("8.0")){W.downloadFile({url:u,file_name:"tabrik.jpg"});return}
+        if(W&&W.downloadFile&&W.isVersionAtLeast&&W.isVersionAtLeast("8.0")){W.downloadFile({url:u,file_name:"tabrik.jpg"});if(mode==="sh"){var n=document.createElement("div");n.style.cssText="position:fixed;left:12px;right:12px;bottom:18px;z-index:99999;background:#111;color:#fff;padding:14px;border-radius:12px;text-align:center;font-size:15px;line-height:1.4";n.textContent=p("afterSh");document.body.appendChild(n);setTimeout(function(){n.parentNode&&n.parentNode.removeChild(n)},7000)}return}
         if(W&&W.openLink){W.openLink(u);return}
       }catch(e){}
       window.open(u,"_blank");
