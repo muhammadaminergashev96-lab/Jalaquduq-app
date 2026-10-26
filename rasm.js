@@ -27,7 +27,7 @@ var BGP=[
 "photorealistic lush green valley with rolling hills and blue sky with white clouds, empty landscape, no people, high detail",
 "photorealistic night sky full of stars and milky way over silhouetted mountains, empty landscape, no people, high detail",
 "photorealistic golden sand dunes desert at sunset, warm light, empty landscape, no people, high detail",
-"realistic eye-level tourist photo at night inside Masjid al-Haram Mecca, the black Kaaba with golden band on the right side of the frame, Abraj Al Bait clock tower and two white minarets behind, glowing arches and street lights, white marble floor, crowd of worshippers in white far in the background, empty clear space in the lower center-left for a person standing in the foreground, black night sky, sharp, high detail"];
+"realistic eye-level photo at night in Masjid al-Haram Mecca, black Kaaba with golden band on the right, Abraj Al Bait clock tower and white minarets behind, glowing arches, white marble floor, distant worshippers in white, empty space in lower center for a standing person, black sky, high detail"];
 var BGN=[["Quyosh botishi, tog‘lar","Закат в горах"],["Ko‘l va tog‘lar","Озеро и горы"],["Yashil vodiy","Зелёная долина"],["Tungi osmon","Ночное небо"],["Sahro","Пустыня"],["Ka’ba","Кааба"]];
 var REN=[["Film (90-yillar)","Плёнка 90-х"],["VHS kassetasi","VHS-кассета"],["Polaroid","Полароид"],["Eski qora-oq","Старое чёрно-белое"]];
 
