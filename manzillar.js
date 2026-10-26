@@ -15,6 +15,7 @@ var DATA={
 /* MA'LUMOTLAR TUGADI */
 var CATS=[["masjid","🕌"],["oshxona","🍽️"],["mehmonxona","🏨"],["dokon","🛒"],["dorixona","💊"],["shifoxona","🏥"],["yoqilgi","⛽"],["boshqa","📌"]];
 var NM={
+ masjid:["Masjidlar","Масжидлар","Мечети"],
  oshxona:["Oshxonalar","Ошхоналар","Столовые и кафе"],
  mehmonxona:["Mehmonxonalar","Меҳмонхоналар","Гостиницы"],
  dokon:["Do‘konlar","Дўконлар","Магазины"],
