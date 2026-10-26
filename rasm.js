@@ -10,7 +10,7 @@ var P={
   n4:"Sun’iy intellekt rasmni kattalashtirib, aniqroq qiladi (3840 px gacha). 10–40 soniya ketishi mumkin.",
   nbg:"Sun’iy intellekt odamni ajratib, tanlangan fonga qo‘yadi. Odam aniq ko‘ringan rasm yaxshi chiqadi. 10–40 soniya ketishi mumkin.",
   chBg:"Fonni tanlang",chRe:"Uslubni tanlang",hint:"Yuklab olinmasa, rasmni brauzerda oching:",ext:"Brauzerda ochish",
-  szL:"Odam o‘lchami",sz1:"Katta",sz2:"O‘rtacha",sz3:"Kichik",nGenFail:"Fon rasmi yaratilmadi, tayyor chizma fon ishlatildi.",nAiFail:"Sun’iy intellekt hozir javob bermadi, oddiy usul ishlatildi.",eSeg:"Odamni ajratish moduli yuklanmadi. Internetni tekshirib, qayta urinib ko‘ring.",eGen:"Xatolik yuz berdi. Boshqa rasm bilan urinib ko‘ring.",size:"O‘lcham"},
+  ihL:"Ihrom kiyimi (erkaklar uchun)",ihOn:"Kiydirish",ihOff:"Kerak emas",nEditFail:"Kiyim almashtirilmadi, rasm asl kiyimda.",szL:"Odam o‘lchami",sz1:"Katta",sz2:"O‘rtacha",sz3:"Kichik",nGenFail:"Fon rasmi yaratilmadi, tayyor chizma fon ishlatildi.",nAiFail:"Sun’iy intellekt hozir javob bermadi, oddiy usul ishlatildi.",eSeg:"Odamni ajratish moduli yuklanmadi. Internetni tekshirib, qayta urinib ko‘ring.",eGen:"Xatolik yuz berdi. Boshqa rasm bilan urinib ko‘ring.",size:"O‘lcham"},
  ru:{tile:"Фото",tileS:"4K, фон, ретро",title:"Фото-монтаж",
   k4:"Качество 4K",k4d:"Увеличивает фото до размера 4K",
   bg:"Фон",bgd:"Ставит фон: пейзаж или Кааба",
@@ -19,7 +19,7 @@ var P={
   n4:"ИИ увеличивает фото и делает его чётче (до 3840 px). Это может занять 10–40 секунд.",
   nbg:"ИИ вырезает человека и ставит на выбранный фон. Лучше всего — фото, где человек хорошо виден. Может занять 10–40 секунд.",
   chBg:"Выберите фон",chRe:"Выберите стиль",hint:"Если не скачивается, откройте приложение в браузере:",ext:"Открыть в браузере",
-  szL:"Размер человека",sz1:"Крупно",sz2:"Средний",sz3:"Маленький",nGenFail:"Фон не создался, использован нарисованный фон.",nAiFail:"ИИ сейчас не ответил, использован простой способ.",eSeg:"Не загрузился модуль выделения человека. Проверьте интернет и попробуйте ещё раз.",eGen:"Произошла ошибка. Попробуйте другое фото.",size:"Размер"}
+  ihL:"Одежда ихрам (для мужчин)",ihOn:"Надеть",ihOff:"Не нужно",nEditFail:"Одежду не удалось сменить, фото в исходной одежде.",szL:"Размер человека",sz1:"Крупно",sz2:"Средний",sz3:"Маленький",nGenFail:"Фон не создался, использован нарисованный фон.",nAiFail:"ИИ сейчас не ответил, использован простой способ.",eSeg:"Не загрузился модуль выделения человека. Проверьте интернет и попробуйте ещё раз.",eGen:"Произошла ошибка. Попробуйте другое фото.",size:"Размер"}
 };
 var BGP=[
 "realistic eye-level photo of a sunset over mountains, wide open space in front, dramatic orange and purple sky, empty landscape, no people, cinematic, high detail",
@@ -100,11 +100,17 @@ function aiCall(task,img){
   .then(function(r){clearTimeout(tm);if(!r.ok)throw new Error("ai "+r.status);return r.blob()})
   .then(function(b){return new Promise(function(res,rej){var u=URL.createObjectURL(b),im=new Image();im.onload=function(){URL.revokeObjectURL(u);res(im)};im.onerror=function(){URL.revokeObjectURL(u);rej(new Error("img"))};im.src=u})});
 }
-function aiGen(bi){
+function aiGen(bi,tries){
+  tries=tries||0;
   var ctl=window.AbortController?new AbortController():null,tm=setTimeout(function(){if(ctl)ctl.abort()},90000);
   return fetch(AI,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({task:"gen",prompt:BGP[bi]}),signal:ctl?ctl.signal:undefined})
-  .then(function(r){clearTimeout(tm);if(!r.ok)throw new Error("gen "+r.status);return r.blob()})
-  .then(function(b){return new Promise(function(res,rej){var u=URL.createObjectURL(b),im=new Image();im.onload=function(){URL.revokeObjectURL(u);res(im)};im.onerror=function(){URL.revokeObjectURL(u);rej(new Error("img"))};im.src=u})});
+  .then(function(r){clearTimeout(tm);if(!r.ok)return r.text().then(function(t){var e=new Error("gen "+r.status+" "+t.slice(0,80));throw e});return r.blob()})
+  .then(function(b){return new Promise(function(res,rej){var u=URL.createObjectURL(b),im=new Image();im.onload=function(){URL.revokeObjectURL(u);res(im)};im.onerror=function(){URL.revokeObjectURL(u);rej(new Error("gen img"))};im.src=u})})
+  .catch(function(e){
+    clearTimeout(tm);
+    if(tries<1)return new Promise(function(r){setTimeout(r,10000)}).then(function(){return aiGen(bi,tries+1)});
+    throw e;
+  });
 }
 function local4k(img){
   var d=dim(img),s=3840/Math.max(d.w,d.h),tw=Math.round(d.w*s),th=Math.round(d.h*s);
@@ -116,7 +122,7 @@ function do4k(img){
   return aiCall("k4",img).then(function(im){
     var d=dim(im),s=3840/Math.max(d.w,d.h),c=cv(Math.round(d.w*s),Math.round(d.h*s));
     return s===1?im:resize(im,c.width,c.height);
-  }).then(function(r){var c=cv(dim(r).w,dim(r).h);c.getContext("2d").drawImage(r,0,0);return c}).catch(function(){S.note="nAiFail";return local4k(img)});
+  }).then(function(r){var c=cv(dim(r).w,dim(r).h);c.getContext("2d").drawImage(r,0,0);return c}).catch(function(e){S.note="nAiFail";S.dbg=String(e&&e.message||e);return local4k(img)});
 }
 
 /* ---------- orqa fonlar (hammasi canvasda chiziladi) ---------- */
@@ -375,12 +381,15 @@ function localBg(img,bi){
   }).then(function(mask){return composite(base,mask,bi)});
 }
 function doBg(img,bi){
-  var gen=aiGen(bi).catch(function(){S.note="nGenFail";return null});
-  return aiCall("bg",img).then(function(cut){return gen.then(function(g){return compCut(cut,bi,g)})}).catch(function(){S.note="nAiFail";return localBg(img,bi)});
+  var srcP=S.ih?aiCall("edit",img).catch(function(e){S.note="nEditFail";S.dbg=String(e&&e.message||e);return img}):Promise.resolve(img);
+  var cutP=srcP.then(function(im){return aiCall("bg",im)});
+  return cutP.then(function(cut){
+    return aiGen(bi).catch(function(e){S.note="nGenFail";S.dbg=String(e&&e.message||e);return null}).then(function(g){return compCut(cut,bi,g)});
+  }).catch(function(e){S.note="nAiFail";S.dbg=String(e&&e.message||e);return localBg(img,bi)});
 }
 
 /* ---------- interfeys ---------- */
-var S={sz:.65,note:"",sub:null,src:null,img:null,bg:0,re:0,busy:false,err:"",out:null};
+var S={ih:false,dbg:"",sz:.65,note:"",sub:null,src:null,img:null,bg:0,re:0,busy:false,err:"",out:null};
 var css=document.createElement("style");
 css.textContent=".t8{background:linear-gradient(135deg,#d6336c,#7048e8)}.rr{display:flex;align-items:center;gap:12px;width:100%;padding:14px;border-radius:14px;border:1px solid var(--line);background:var(--bg);color:var(--text);font-size:16px;font-weight:600;margin-bottom:8px;text-align:left;font-family:inherit}.rr .e{font-size:26px}.rbtn{display:block;width:100%;text-align:center;padding:13px;border-radius:12px;background:var(--accbg);color:var(--acc);font-size:16px;font-weight:700;margin:10px 0;font-family:inherit}.rmk{display:block;width:100%;padding:14px;border:0;border-radius:12px;background:var(--acc);color:#fff;font-size:16px;font-weight:700;margin-top:8px;font-family:inherit}.rmk:disabled{opacity:.5}.rimg{display:block;width:100%;max-height:420px;object-fit:contain;border-radius:12px;margin:10px 0;background:var(--bg)}.rch{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}.rc{border:2px solid var(--line);border-radius:12px;background:var(--bg);color:var(--text);padding:6px;font-size:13px;font-weight:600;font-family:inherit;text-align:center}.rc img{display:block;width:100%;border-radius:8px;margin-bottom:5px}.rc.on{border-color:var(--acc);color:var(--acc)}.rrow{display:flex;gap:8px}.rrow button{flex:1}";
 document.head.appendChild(css);
@@ -421,12 +430,15 @@ function draw(){
     if(S.sub==="bg"){
       h+='<h2 style="margin:14px 0 0">'+p("szL")+'</h2><div class="rch" style="grid-template-columns:1fr 1fr 1fr">'+[[1,"sz1"],[.65,"sz2"],[.5,"sz3"]].map(function(x){return '<button class="rc'+(S.sz===x[0]?' on':'')+'" data-sz="'+x[0]+'">'+p(x[1])+'</button>'}).join("")+'</div>';
     }
+    if(S.sub==="bg"){
+      h+='<h2 style="margin:14px 0 0">'+p("ihL")+'</h2><div class="rch">'+[[true,"ihOn"],[false,"ihOff"]].map(function(x){return '<button class="rc'+(S.ih===x[0]?' on':'')+'" data-ih="'+x[0]+'">'+p(x[1])+'</button>'}).join("")+'</div>';
+    }
     h+='<label class="rbtn">'+(S.src?p("other"):p("pick"))+'<input type="file" accept="image/*" id="rf" hidden></label>';
     if(S.src&&!S.out)h+='<img class="rimg" src="'+S.src+'" alt="">';
     h+='<button class="rmk" id="rm"'+((!S.img||S.busy)?' disabled':'')+'>'+(S.busy?p("busy"):p("make"))+'</button>';
     if(S.err)h+='<div class="sub" style="margin:10px 0 0;color:var(--dn)">'+p(S.err)+'</div>';
     if(S.out){
-      if(S.note)h+='<div class="sub" style="margin:10px 0 0">'+p(S.note)+'</div>';
+      if(S.note)h+='<div class="sub" style="margin:10px 0 0">'+p(S.note)+(S.dbg?' <small>('+S.dbg.replace(/[<>&]/g,'')+')</small>':'')+'</div>';
       h+='<img class="rimg" src="'+S.out.url+'" alt=""><div class="sub" style="margin:0 0 8px">'+p("size")+': '+S.out.w+' × '+S.out.h+'</div>'+
         '<div class="rrow"><button class="rmk" id="rd">'+p("dl")+'</button>'+((navigator.share&&typeof File!=="undefined")?'<button class="rmk" id="rs">'+p("shr")+'</button>':'')+'</div>'+
         '<div class="sub" style="margin:10px 0 0">'+p("hint")+' <a href="#" id="rx">'+p("ext")+'</a></div>';
@@ -438,6 +450,7 @@ function draw(){
   function on(sel,fn){var bs=sec.querySelectorAll(sel);for(var i=0;i<bs.length;i++)(function(b){b.addEventListener("click",function(e){fn(b,e)})})(bs[i])}
   on("[data-s]",function(b){S.sub=b.getAttribute("data-s");draw();window.scrollTo(0,0)});
   on("[data-bg]",function(b){S.bg=+b.getAttribute("data-bg");draw()});
+  on("[data-ih]",function(b){S.ih=b.getAttribute("data-ih")==="true";draw()});
   on("[data-sz]",function(b){S.sz=+b.getAttribute("data-sz");draw()});
   on("[data-re]",function(b){S.re=+b.getAttribute("data-re");draw()});
   var rf=$("rf");if(rf)rf.addEventListener("change",function(){pickFile(rf.files&&rf.files[0])});
@@ -465,7 +478,7 @@ function finish(cn){
 }
 function run(){
   if(!S.img||S.busy)return;
-  if(S.out){try{URL.revokeObjectURL(S.out.url)}catch(e){}S.out=null}S.busy=true;S.err="";S.note="";draw();
+  if(S.out){try{URL.revokeObjectURL(S.out.url)}catch(e){}S.out=null}S.busy=true;S.err="";S.note="";S.dbg="";draw();
   setTimeout(function(){
     var pr;
     try{
