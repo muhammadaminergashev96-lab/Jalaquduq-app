@@ -24,14 +24,14 @@ function tr(s){return LANG==="oz"?cyr(s):s}
 var UI={
 uz:{tile:"Tabrik",tileS:"Tug‘ilgan kunga",title:"Tug‘ilgan kun tabrigi",who:"Kimga?",name:"Ismi (ixtiyoriy)",age:"Yoshi (ixtiyoriy)",tone:"Uslub",form:"Murojaat",sen:"Sen",siz:"Siz",
  make:"Tabrik yaratish",another:"Boshqa variant",copy:"Nusxalash",copied:"Nusxalandi ✓",share:"Ulashish",card:"Ochiqcha yaratish",theme:"Rang",dl:"Yuklab olish",shr:"Rasmni ulashish",
- hint:"Matnni o‘zgartirishingiz mumkin. Yuklab olinmasa, “Rasmni ulashish” yoki rasmni bosib turib saqlang.",ph:"Masalan: Aziz",
+ photoAdd:"Rasm qo‘shish (ixtiyoriy)",photoChange:"Rasmni almashtirish",photoDel:"Rasmni olib tashlash",hint:"Matnni o‘zgartirishingiz mumkin. Yuklab olinmasa, “Rasmni ulashish” yoki rasmni bosib turib saqlang.",ph:"Masalan: Aziz",
  r:{ota:"Ota",ona:"Ona",dost:"Do‘st",opa:"Opa",singil:"Singil",aka:"Aka",uka:"Uka",umr:"Umr yo‘ldosh",ustoz:"Ustoz",hamkasb:"Hamkasb",farzand:"Farzand"},
  t:{samimiy:"Samimiy",rasmiy:"Rasmiy",hazil:"Hazil",duo:"Duo"},
  head:"Tug‘ilgan kuning muborak!",headSiz:"Tug‘ilgan kuningiz muborak!",
  th:["Pushti","Ko‘k","Yashil","Binafsha","Oltin"]},
 ru:{tile:"Поздравление",tileS:"С днём рождения",title:"Поздравление с днём рождения",who:"Кому?",name:"Имя (необязательно)",age:"Возраст (необязательно)",tone:"Стиль",form:"Обращение",sen:"На «ты»",siz:"На «Вы»",
  make:"Создать поздравление",another:"Другой вариант",copy:"Копировать",copied:"Скопировано ✓",share:"Поделиться",card:"Создать открытку",theme:"Цвет",dl:"Скачать",shr:"Поделиться картинкой",
- hint:"Текст можно изменить. Если не скачивается, нажмите «Поделиться картинкой» или удерживайте картинку и сохраните.",ph:"Например: Азиз",
+ photoAdd:"Добавить фото (необязательно)",photoChange:"Заменить фото",photoDel:"Убрать фото",hint:"Текст можно изменить. Если не скачивается, нажмите «Поделиться картинкой» или удерживайте картинку и сохраните.",ph:"Например: Азиз",
  r:{ota:"Папа",ona:"Мама",dost:"Друг",opa:"Сестра старшая",singil:"Сестра младшая",aka:"Брат старший",uka:"Брат младший",umr:"Любимый человек",ustoz:"Учитель",hamkasb:"Коллега",farzand:"Ребёнок"},
  t:{samimiy:"Тёплое",rasmiy:"Официальное",hazil:"С юмором",duo:"Пожелание"},
  head:"С днём рождения!",headSiz:"С днём рождения!",
@@ -100,7 +100,7 @@ function fill(s,vals){return s.replace(/\{(\w+)\}/g,function(m,k){return vals[k]
 function pick(a){return a[Math.floor(Math.random()*a.length)]}
 function pickN(a,n){var c=a.slice(),o=[];while(o.length<n&&c.length){o.push(c.splice(Math.floor(Math.random()*c.length),1)[0])}return o}
 
-var S={rel:"dost",tone:"samimiy",siz:false,name:"",age:"",text:"",theme:0,out:null};
+var S={photo:null,photoUrl:null,rel:"dost",tone:"samimiy",siz:false,name:"",age:"",text:"",theme:0,out:null};
 function useSiz(){return S.siz}
 function gen(){
   var siz=S.tone==="rasmiy"?true:S.siz,idx=siz?1:0,vals={},ru=LANG==="ru",nm=S.name.trim(),age=parseInt(S.age,10);
@@ -135,18 +135,26 @@ function drawCard(){
   var cols=["#ffd166","#ef476f","#06d6a0","#118ab2","#ffffff"];
   for(i=0;i<50;i++){x.save();x.translate(r()*W,r()*H*.5);x.rotate(r()*6);x.fillStyle=cols[i%5];x.fillRect(-6,-12,12,24);x.restore()}
   for(i=0;i<4;i++){var bx=110+i*290+r()*40,by=H*.22+r()*80;x.strokeStyle="rgba(255,255,255,.7)";x.lineWidth=3;x.beginPath();x.moveTo(bx,by+75);x.quadraticCurveTo(bx-20,by+170,bx+10,by+260);x.stroke();x.fillStyle=cols[i%4];x.beginPath();x.ellipse(bx,by,55,70,0,0,7);x.fill();x.fillStyle="rgba(255,255,255,.35)";x.beginPath();x.ellipse(bx-18,by-22,12,20,.5,0,7);x.fill()}
-  var cardX=90,cardY=H*.36,cardW=W-180,cardH=H*.54;
+  var ph=S.photo,cardX=90,cardY=ph?H*.30:H*.36,cardW=W-180,cardH=ph?H*.62:H*.54;
   x.fillStyle="rgba(255,255,255,.94)";x.shadowColor="rgba(0,0,0,.25)";x.shadowBlur=40;x.shadowOffsetY=14;
   x.beginPath();if(x.roundRect)x.roundRect(cardX,cardY,cardW,cardH,40);else x.rect(cardX,cardY,cardW,cardH);x.fill();x.shadowBlur=0;x.shadowOffsetY=0;
+  if(ph){
+    var pr0=175,pcx=W/2,pcy=cardY;
+    x.save();x.shadowColor="rgba(0,0,0,.3)";x.shadowBlur=30;x.fillStyle="#fff";x.beginPath();x.arc(pcx,pcy,pr0+14,0,7);x.fill();x.restore();
+    x.save();x.beginPath();x.arc(pcx,pcy,pr0,0,7);x.clip();
+    var iw=ph.naturalWidth||ph.width,ih=ph.naturalHeight||ph.height,sc=Math.max(pr0*2/iw,pr0*2/ih),dw=iw*sc,dh=ih*sc;
+    x.drawImage(ph,pcx-dw/2,pcy-dh/2-(ih>iw?pr0*.18:0),dw,dh);x.restore();
+  }
   x.textAlign="center";x.fillStyle=th[1];x.font="bold 64px sans-serif";
   var siz=S.tone==="rasmiy"?true:S.siz,head=ru?UI.ru.head:(LANG==="oz"?cyr(siz?UI.uz.headSiz:UI.uz.head):(siz?UI.uz.headSiz:UI.uz.head));
-  var y=cardY+110;
+  var y=cardY+(ph?290:110);
   wrap(x,head,cardW-100).forEach(function(l){x.fillText(l,W/2,y);y+=76});
   var nm=S.name.trim();
   if(nm){x.fillStyle="#222";x.font="bold 82px sans-serif";var fs=82;while(x.measureText(nm).width>cardW-100&&fs>36){fs-=4;x.font="bold "+fs+"px sans-serif"}y+=30;x.fillText(nm,W/2,y);y+=60}
   var age=parseInt(S.age,10);
   if(age>0&&age<130){
-    y+=20;x.fillStyle=th[0];x.beginPath();x.arc(W/2,y+60,70,0,7);x.fill();x.fillStyle="#fff";x.font="bold 78px sans-serif";x.textBaseline="middle";x.fillText(String(age),W/2,y+62);x.textBaseline="alphabetic";y+=160;
+    if(ph){var bx2=W/2+150,by2=cardY+130;x.fillStyle=th[0];x.beginPath();x.arc(bx2,by2,58,0,7);x.fill();x.lineWidth=8;x.strokeStyle="#fff";x.stroke();x.fillStyle="#fff";x.font="bold 56px sans-serif";x.textBaseline="middle";x.fillText(String(age),bx2,by2+2);x.textBaseline="alphabetic";y+=10}
+    else{y+=20;x.fillStyle=th[0];x.beginPath();x.arc(W/2,y+60,70,0,7);x.fill();x.fillStyle="#fff";x.font="bold 78px sans-serif";x.textBaseline="middle";x.fillText(String(age),W/2,y+62);x.textBaseline="alphabetic";y+=160}
   }
   var msg=(S.text||"").split(/\n+/).filter(function(l){return l.trim()});var short=msg.length>2?msg[msg.length-2]:msg[0];
   x.fillStyle="#444";x.font="40px sans-serif";
@@ -188,7 +196,7 @@ function draw(keep){
     h+='<textarea class="tk-ta" id="tt">'+esc(S.text)+'</textarea><button class="tk-b l" id="tg2">🔄 '+p("another")+'</button>'+
      '<div class="tk-r"><button class="tk-b" id="tcp">'+p("copy")+'</button><button class="tk-b" id="tsh">'+p("share")+'</button></div>'+
      '<div class="tk-l" id="tcard">'+p("card")+'</div><div class="tk-sw">'+THEMES.map(function(t,i){return '<button data-th="'+i+'" class="'+(i===S.theme?'on':'')+'" style="background:linear-gradient(135deg,'+t[0]+','+t[1]+')" title="'+pr("th",i)+'"></button>'}).join("")+'</div>'+
-     '<button class="tk-b l" id="tmc">🖼️ '+p("card")+'</button>';
+     '<label class="tk-b l" style="text-align:center">📷 '+(S.photo?p("photoChange"):p("photoAdd"))+'<input type="file" accept="image/*" id="tph" hidden></label>'+(S.photo?'<button class="tk-b l" id="tpd">'+p("photoDel")+'</button>':'')+'<button class="tk-b l" id="tmc">🖼️ '+p("card")+'</button>';
     if(S.out)h+='<img class="tk-img" src="'+S.out.url+'" alt=""><div class="tk-r"><button class="tk-b" id="tdl">'+p("dl")+'</button>'+((navigator.share&&typeof File!=="undefined")?'<button class="tk-b" id="tis">'+p("shr")+'</button>':'')+'</div><div class="sub" style="margin:10px 0 0">'+p("hint")+'</div>';
   }
   h+='</div>';sec.innerHTML=h;
@@ -206,6 +214,8 @@ function draw(keep){
   var tt=$("tt");if(tt)tt.addEventListener("input",function(){S.text=this.value});
   var cp=$("tcp");if(cp)cp.addEventListener("click",function(){copy(S.text,cp)});
   var sh=$("tsh");if(sh)sh.addEventListener("click",function(){shareText(S.text)});
+  var tph=$("tph");if(tph)tph.addEventListener("change",function(){var f=tph.files&&tph.files[0];if(!f)return;if(S.photoUrl)try{URL.revokeObjectURL(S.photoUrl)}catch(e){}var u=URL.createObjectURL(f),im=new Image();im.onload=function(){S.photo=im;S.photoUrl=u;S.out=null;draw()};im.src=u});
+  var tpd=$("tpd");if(tpd)tpd.addEventListener("click",function(){S.photo=null;S.out=null;draw()});
   var mc=$("tmc");if(mc)mc.addEventListener("click",makeCard);
   var dl=$("tdl");if(dl)dl.addEventListener("click",function(){var a=document.createElement("a");a.href=S.out.url;a.download="tabrik.jpg";document.body.appendChild(a);a.click();document.body.removeChild(a)});
   var is=$("tis");if(is)is.addEventListener("click",function(){try{var f=new File([S.out.blob],"tabrik.jpg",{type:"image/jpeg"});if(navigator.canShare&&navigator.canShare({files:[f]})){navigator.share({files:[f]}).catch(function(){});return}}catch(e){}dl&&dl.click()});
