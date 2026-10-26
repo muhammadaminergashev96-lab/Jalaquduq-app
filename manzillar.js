@@ -3,6 +3,7 @@
    {n:"Nomi",a:"Manzil",t:"+998901234567",h:"09:00–22:00",m:"xarita havolasi (ixtiyoriy)"}
    Qatorlar orasiga vergul qo'yishni unutmang. */
 var DATA={
+ masjid:[],
  oshxona:[],
  mehmonxona:[],
  dokon:[],
