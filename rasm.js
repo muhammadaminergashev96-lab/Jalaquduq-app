@@ -7,19 +7,19 @@ var P={
   bg:"Orqa fon",bgd:"Manzara yoki Ka’ba fonini qo‘yadi",
   re:"Retro",red:"Eski plyonka uslubida",
   pick:"Rasm tanlash",other:"Boshqa rasm tanlash",make:"Tayyorlash",busy:"Ishlanmoqda…",dl:"Yuklab olish",shr:"Ulashish",
-  n4:"Rasm 3840 px gacha kattalashtiriladi va aniqroq qilinadi. Rasmda yo‘q mayda detallar tiklanmaydi.",
-  nbg:"Odam aniq ko‘rinib turgan rasm eng yaxshi chiqadi. Birinchi marta kerakli fayl yuklanadi, bir necha soniya kuting.",
+  n4:"Sun’iy intellekt rasmni kattalashtirib, aniqroq qiladi (3840 px gacha). 10–40 soniya ketishi mumkin.",
+  nbg:"Sun’iy intellekt odamni ajratib, tanlangan fonga qo‘yadi. Odam aniq ko‘ringan rasm yaxshi chiqadi. 10–40 soniya ketishi mumkin.",
   chBg:"Fonni tanlang",chRe:"Uslubni tanlang",hint:"Yuklab olinmasa, rasmni brauzerda oching:",ext:"Brauzerda ochish",
-  eSeg:"Odamni ajratish moduli yuklanmadi. Internetni tekshirib, qayta urinib ko‘ring.",eGen:"Xatolik yuz berdi. Boshqa rasm bilan urinib ko‘ring.",size:"O‘lcham"},
+  nAiFail:"Sun’iy intellekt hozir javob bermadi, oddiy usul ishlatildi.",eSeg:"Odamni ajratish moduli yuklanmadi. Internetni tekshirib, qayta urinib ko‘ring.",eGen:"Xatolik yuz berdi. Boshqa rasm bilan urinib ko‘ring.",size:"O‘lcham"},
  ru:{tile:"Фото",tileS:"4K, фон, ретро",title:"Фото-монтаж",
   k4:"Качество 4K",k4d:"Увеличивает фото до размера 4K",
   bg:"Фон",bgd:"Ставит фон: пейзаж или Кааба",
   re:"Ретро",red:"В стиле старой плёнки",
   pick:"Выбрать фото",other:"Выбрать другое фото",make:"Готовить",busy:"Обработка…",dl:"Скачать",shr:"Поделиться",
-  n4:"Фото увеличивается до 3840 px и становится чётче. Мелкие детали, которых нет на фото, не восстанавливаются.",
-  nbg:"Лучше всего получаются фото, где хорошо виден человек. При первом запуске загружается нужный файл, подождите несколько секунд.",
+  n4:"ИИ увеличивает фото и делает его чётче (до 3840 px). Это может занять 10–40 секунд.",
+  nbg:"ИИ вырезает человека и ставит на выбранный фон. Лучше всего — фото, где человек хорошо виден. Может занять 10–40 секунд.",
   chBg:"Выберите фон",chRe:"Выберите стиль",hint:"Если не скачивается, откройте приложение в браузере:",ext:"Открыть в браузере",
-  eSeg:"Не загрузился модуль выделения человека. Проверьте интернет и попробуйте ещё раз.",eGen:"Произошла ошибка. Попробуйте другое фото.",size:"Размер"}
+  nAiFail:"ИИ сейчас не ответил, использован простой способ.",eSeg:"Не загрузился модуль выделения человека. Проверьте интернет и попробуйте ещё раз.",eGen:"Произошла ошибка. Попробуйте другое фото.",size:"Размер"}
 };
 var BGN=[["Quyosh botishi, tog‘lar","Закат в горах"],["Ko‘l va tog‘lar","Озеро и горы"],["Yashil vodiy","Зелёная долина"],["Tungi osmon","Ночное небо"],["Sahro","Пустыня"],["Ka’ba","Кааба"]];
 var REN=[["Film (90-yillar)","Плёнка 90-х"],["VHS kassetasi","VHS-кассета"],["Polaroid","Полароид"],["Eski qora-oq","Старое чёрно-белое"]];
@@ -85,11 +85,25 @@ function sharpen(cn,a){
 }
 
 /* ---------- 4K ---------- */
-function do4k(img){
+var AI="https://rasm-ai.muhammadaminergashev96.workers.dev";
+function aiCall(task,img){
+  var base=fit(img,1280),url=base.toDataURL("image/jpeg",.9);
+  var ctl=window.AbortController?new AbortController():null,tm=setTimeout(function(){if(ctl)ctl.abort()},90000);
+  return fetch(AI,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({task:task,image:url}),signal:ctl?ctl.signal:undefined})
+  .then(function(r){clearTimeout(tm);if(!r.ok)throw new Error("ai "+r.status);return r.blob()})
+  .then(function(b){return new Promise(function(res,rej){var u=URL.createObjectURL(b),im=new Image();im.onload=function(){URL.revokeObjectURL(u);res(im)};im.onerror=function(){URL.revokeObjectURL(u);rej(new Error("img"))};im.src=u})});
+}
+function local4k(img){
   var d=dim(img),s=3840/Math.max(d.w,d.h),tw=Math.round(d.w*s),th=Math.round(d.h*s);
   var out=resize(img,tw,th);
   sharpen(out,s>1?.55:.25);
   return out;
+}
+function do4k(img){
+  return aiCall("k4",img).then(function(im){
+    var d=dim(im),s=3840/Math.max(d.w,d.h),c=cv(Math.round(d.w*s),Math.round(d.h*s));
+    return s===1?im:resize(im,c.width,c.height);
+  }).then(function(r){var c=cv(dim(r).w,dim(r).h);c.getContext("2d").drawImage(r,0,0);return c}).catch(function(){S.note="nAiFail";return local4k(img)});
 }
 
 /* ---------- orqa fonlar (hammasi canvasda chiziladi) ---------- */
@@ -330,15 +344,27 @@ function composite(base,mask,bi){
   var out=cv(w,h),ox=out.getContext("2d");BG[bi](ox,w,h,focus);ox.drawImage(pc,0,0);
   return out;
 }
-function doBg(img,bi){
+function compCut(cut,bi){
+  var w=cut.naturalWidth||cut.width,h=cut.naturalHeight||cut.height,k=Math.min(1,2400/Math.max(w,h));w=Math.round(w*k);h=Math.round(h*k);
+  var pc=cv(w,h),px=pc.getContext("2d");px.drawImage(cut,0,0,w,h);
+  var d=px.getImageData(0,0,w,h).data,sx=0,sw=0;
+  for(var o=3,q=0;o<d.length;o+=4,q++){if(d[o]>128&&q%7===0){sx+=q%w;sw++}}
+  var cx=sw>50?sx/sw/w:.5,focus=cx<.5?.72:.28;
+  var out=cv(w,h),ox=out.getContext("2d");BG[bi](ox,w,h,focus);ox.drawImage(pc,0,0);
+  return out;
+}
+function localBg(img,bi){
   var base=fit(img,2400);
   return loadSeg().catch(function(){var e=new Error("seg");e.seg=true;throw e}).then(function(sg){
     return segment(sg,fit(base,1024));
   }).then(function(mask){return composite(base,mask,bi)});
 }
+function doBg(img,bi){
+  return aiCall("bg",img).then(function(cut){return compCut(cut,bi)}).catch(function(){S.note="nAiFail";return localBg(img,bi)});
+}
 
 /* ---------- interfeys ---------- */
-var S={sub:null,src:null,img:null,bg:0,re:0,busy:false,err:"",out:null};
+var S={note:"",sub:null,src:null,img:null,bg:0,re:0,busy:false,err:"",out:null};
 var css=document.createElement("style");
 css.textContent=".t8{background:linear-gradient(135deg,#d6336c,#7048e8)}.rr{display:flex;align-items:center;gap:12px;width:100%;padding:14px;border-radius:14px;border:1px solid var(--line);background:var(--bg);color:var(--text);font-size:16px;font-weight:600;margin-bottom:8px;text-align:left;font-family:inherit}.rr .e{font-size:26px}.rbtn{display:block;width:100%;text-align:center;padding:13px;border-radius:12px;background:var(--accbg);color:var(--acc);font-size:16px;font-weight:700;margin:10px 0;font-family:inherit}.rmk{display:block;width:100%;padding:14px;border:0;border-radius:12px;background:var(--acc);color:#fff;font-size:16px;font-weight:700;margin-top:8px;font-family:inherit}.rmk:disabled{opacity:.5}.rimg{display:block;width:100%;max-height:420px;object-fit:contain;border-radius:12px;margin:10px 0;background:var(--bg)}.rch{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0}.rc{border:2px solid var(--line);border-radius:12px;background:var(--bg);color:var(--text);padding:6px;font-size:13px;font-weight:600;font-family:inherit;text-align:center}.rc img{display:block;width:100%;border-radius:8px;margin-bottom:5px}.rc.on{border-color:var(--acc);color:var(--acc)}.rrow{display:flex;gap:8px}.rrow button{flex:1}";
 document.head.appendChild(css);
@@ -357,7 +383,7 @@ function thumb(i){
 function reset(){
   if(S.src)try{URL.revokeObjectURL(S.src)}catch(e){}
   if(S.out)try{URL.revokeObjectURL(S.out.url)}catch(e){}
-  S.src=null;S.img=null;S.out=null;S.err="";S.busy=false;
+  S.src=null;S.img=null;S.out=null;S.err="";S.note="";S.busy=false;
 }
 function draw(){
   var h='<button class="back" id="rb">← '+T[LANG].back+'</button>';
@@ -381,6 +407,7 @@ function draw(){
     h+='<button class="rmk" id="rm"'+((!S.img||S.busy)?' disabled':'')+'>'+(S.busy?p("busy"):p("make"))+'</button>';
     if(S.err)h+='<div class="sub" style="margin:10px 0 0;color:var(--dn)">'+p(S.err)+'</div>';
     if(S.out){
+      if(S.note)h+='<div class="sub" style="margin:10px 0 0">'+p(S.note)+'</div>';
       h+='<img class="rimg" src="'+S.out.url+'" alt=""><div class="sub" style="margin:0 0 8px">'+p("size")+': '+S.out.w+' × '+S.out.h+'</div>'+
         '<div class="rrow"><button class="rmk" id="rd">'+p("dl")+'</button>'+((navigator.share&&typeof File!=="undefined")?'<button class="rmk" id="rs">'+p("shr")+'</button>':'')+'</div>'+
         '<div class="sub" style="margin:10px 0 0">'+p("hint")+' <a href="#" id="rx">'+p("ext")+'</a></div>';
@@ -418,11 +445,11 @@ function finish(cn){
 }
 function run(){
   if(!S.img||S.busy)return;
-  if(S.out){try{URL.revokeObjectURL(S.out.url)}catch(e){}S.out=null}S.busy=true;S.err="";draw();
+  if(S.out){try{URL.revokeObjectURL(S.out.url)}catch(e){}S.out=null}S.busy=true;S.err="";S.note="";draw();
   setTimeout(function(){
     var pr;
     try{
-      if(S.sub==="k4")pr=Promise.resolve(do4k(S.img));
+      if(S.sub==="k4")pr=do4k(S.img);
       else if(S.sub==="re")pr=Promise.resolve(doRetro(S.img,S.re));
       else pr=doBg(S.img,S.bg);
     }catch(e){pr=Promise.reject(e)}
