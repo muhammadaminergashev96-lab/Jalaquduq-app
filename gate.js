@@ -8,12 +8,11 @@ ru:{errt:"Не удалось проверить",retry:"Повторить",chk
 function L(){var l="uz";try{l=localStorage.getItem("lang")||"uz"}catch(e){}return TX[l]?l:"uz"}
 var W=window.Telegram&&Telegram.WebApp,init=W&&W.initData,uid=W&&W.initDataUnsafe&&W.initDataUnsafe.user&&W.initDataUnsafe.user.id;
 var CK="gm2_"+(uid||0);
-try{var t=+localStorage.getItem(CK);if(uid&&t&&Date.now()-t<120e3){var d0=document.createElement("div");d0.style.cssText="position:fixed;top:0;left:0;right:0;z-index:2147483647;background:#fde68a;color:#000;padding:6px;text-align:center;font:13px sans-serif";d0.textContent="DEBUG v5: eslab qolingan natija, "+Math.round((120e3-(Date.now()-t))/1000)+" soniya qoldi (id "+uid+")";document.body.appendChild(d0);setTimeout(function(){d0.parentNode&&d0.parentNode.removeChild(d0)},4000);return}}catch(e){}
+try{var t=+localStorage.getItem(CK);if(uid&&t&&Date.now()-t<3600e3)return}catch(e){}
 var o=document.createElement("div");
 o.style.cssText="position:fixed;inset:0;z-index:2147483000;background:#0f1419;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;text-align:center;font-family:-apple-system,Roboto,sans-serif;gap:14px";
 document.body.appendChild(o);
 function set(h){o.innerHTML=h}
-function dbg(st){try{var d=document.createElement("div");d.style.cssText="position:fixed;top:0;left:0;right:0;z-index:2147483647;background:#fde68a;color:#000;padding:6px;text-align:center;font:13px sans-serif";d.textContent="DEBUG v5 a‘zolik: "+st+" (id "+uid+")";document.body.appendChild(d);setTimeout(function(){d.parentNode&&d.parentNode.removeChild(d)},4000)}catch(e){}}
 function done(){try{if(uid)localStorage.setItem(CK,String(Date.now()))}catch(e){}if(o.parentNode)o.parentNode.removeChild(o)}
 function open(u){try{if(W&&W.openTelegramLink&&/^https:\/\/t\.me\//.test(u)){W.openTelegramLink(u);return}if(W&&W.openLink){W.openLink(u);return}}catch(e){}window.open(u,"_blank")}
 function check(manual){
@@ -23,7 +22,7 @@ function check(manual){
   fetch(API,{method:"POST",headers:{"Content-Type":"text/plain"},body:init,signal:ctl?ctl.signal:undefined})
    .then(function(r){return r.json()}).then(function(j){
      clearTimeout(tm);
-     if(j&&j.ok&&j.member){dbg(j.st);done();return}
+     if(j&&j.ok&&j.member){done();return}
      if(j&&j.ok&&j.member===false){block(j.link,manual);return}
      fail((j&&j.error)||"javob noto‘g‘ri");
    }).catch(function(e){clearTimeout(tm);fail(e&&e.name==="AbortError"?"vaqt tugadi":"ulanib bo‘lmadi")});
