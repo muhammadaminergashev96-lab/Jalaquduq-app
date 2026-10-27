@@ -1,9 +1,9 @@
 (function(){
 var API="https://rasm-ai.muhammadaminergashev96.workers.dev/member";
 var TX={
-uz:{chk:"Tekshirilmoqda…",title:"Kanalga a‘zo bo‘ling",msg:"Ilovadan foydalanish uchun «Jalaquduq ovozi» kanaliga a‘zo bo‘lishingiz kerak.",join:"Kanalga o‘tish",again:"A‘zo bo‘ldim, tekshirish",no:"Hali a‘zo emassiz. Avval kanalga a‘zo bo‘ling.",tg:"Ilovani Telegram ichida oching",tgm:"Bu ilova faqat Telegram orqali ishlaydi."},
-oz:{chk:"Текширилмоқда…",title:"Каналга аъзо бўлинг",msg:"Иловадан фойдаланиш учун «Jalaquduq ovozi» каналига аъзо бўлишингиз керак.",join:"Каналга ўтиш",again:"Аъзо бўлдим, текшириш",no:"Ҳали аъзо эмассиз. Аввал каналга аъзо бўлинг.",tg:"Иловани Telegram ичида очинг",tgm:"Бу илова фақат Telegram орқали ишлайди."},
-ru:{chk:"Проверка…",title:"Подпишитесь на канал",msg:"Чтобы пользоваться приложением, нужно подписаться на канал «Jalaquduq ovozi».",join:"Перейти в канал",again:"Я подписался, проверить",no:"Вы ещё не подписаны. Сначала подпишитесь на канал.",tg:"Откройте приложение в Telegram",tgm:"Это приложение работает только в Telegram."}
+uz:{errt:"Tekshirib bo‘lmadi",retry:"Qayta urinish",chk:"Tekshirilmoqda…",title:"Kanalga a‘zo bo‘ling",msg:"Ilovadan foydalanish uchun «Jalaquduq ovozi» kanaliga a‘zo bo‘lishingiz kerak.",join:"Kanalga o‘tish",again:"A‘zo bo‘ldim, tekshirish",no:"Hali a‘zo emassiz. Avval kanalga a‘zo bo‘ling.",tg:"Ilovani Telegram ichida oching",tgm:"Bu ilova faqat Telegram orqali ishlaydi."},
+oz:{errt:"Текшириб бўлмади",retry:"Қайта уриниш",chk:"Текширилмоқда…",title:"Каналга аъзо бўлинг",msg:"Иловадан фойдаланиш учун «Jalaquduq ovozi» каналига аъзо бўлишингиз керак.",join:"Каналга ўтиш",again:"Аъзо бўлдим, текшириш",no:"Ҳали аъзо эмассиз. Аввал каналга аъзо бўлинг.",tg:"Иловани Telegram ичида очинг",tgm:"Бу илова фақат Telegram орқали ишлайди."},
+ru:{errt:"Не удалось проверить",retry:"Повторить",chk:"Проверка…",title:"Подпишитесь на канал",msg:"Чтобы пользоваться приложением, нужно подписаться на канал «Jalaquduq ovozi».",join:"Перейти в канал",again:"Я подписался, проверить",no:"Вы ещё не подписаны. Сначала подпишитесь на канал.",tg:"Откройте приложение в Telegram",tgm:"Это приложение работает только в Telegram."}
 };
 function L(){var l="uz";try{l=localStorage.getItem("lang")||"uz"}catch(e){}return TX[l]?l:"uz"}
 var W=window.Telegram&&Telegram.WebApp,init=W&&W.initData,uid=W&&W.initDataUnsafe&&W.initDataUnsafe.user&&W.initDataUnsafe.user.id;
@@ -24,8 +24,13 @@ function check(manual){
      clearTimeout(tm);
      if(j&&j.ok&&j.member){done();return}
      if(j&&j.ok&&j.member===false){block(j.link,manual);return}
-     done(); // sozlama yoki tarmoq xatosi: ilovani to‘smaymiz
-   }).catch(function(){clearTimeout(tm);done()});
+     fail((j&&j.error)||"javob noto‘g‘ri");
+   }).catch(function(e){clearTimeout(tm);fail(e&&e.name==="AbortError"?"vaqt tugadi":"ulanib bo‘lmadi")});
+}
+function fail(why){
+  var x=TX[L()];
+  set('<div style="font-size:44px">⚠️</div><div style="font-size:20px;font-weight:700">'+x.errt+'</div><div style="font-size:13px;opacity:.7;max-width:320px;word-break:break-word">'+String(why).replace(/[<>&]/g,"")+'</div><button id="gr" style="width:100%;max-width:320px;padding:14px;border:0;border-radius:12px;background:#3ecfa6;color:#06251d;font-weight:700;font-size:16px">'+x.retry+'</button>');
+  document.getElementById("gr").onclick=function(){check(false)};
 }
 function block(link,manual){
   var x=TX[L()];
