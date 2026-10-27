@@ -47,11 +47,11 @@ function pa(k){var v=(lg()==="ru"?UI.ru:UI.uz)[k];return lg()==="oz"?v.map(cyr):
 function nz(s){return String(s||"").toLowerCase().replace(/[ʻʼ‘’'`´]/g,"")}
 var RX=[
  ["namoz",/namoz|намаз/],["qibla",/qibla|кибла|қибла/],["tasbeh",/tasbeh|тасбеҳ|тасбех|чётк|четк/],["obhavo",/ob.?havo|ҳаво|хаво|погод/],["valyuta",/valyuta|валют|курс/],
- ["xarajat",/xarajat|харажат|расход/],["rasm",/rasm|расм|фото/],["yosh",/yosh|ёш|возраст/],["tillar",/tillar|тиллар|язык/],["tabrik",/tabrik|табрик|поздрав/],
+ ["xarajat",/xarajat|харажат|расход/],["maqsad",/maqsad|мақсад|цел/],["rasm",/rasm|расм|фото/],["yosh",/yosh|ёш|возраст/],["tillar",/tillar|тиллар|язык/],["tabrik",/tabrik|табрик|поздрав/],
  ["prava",/prava|права/],["huquq",/huquq|ҳуқуқ|хукук|право/],["shosh",/shosh|шошил|срочн|экстрен/],["manzil",/manzil|манзил|адрес/],
  ["oyin",/oyin|ўйин|уйин|игр/],["viktorina",/viktorin|виктор/],["qoshiq",/qoshiq|қўшиқ|қушиқ|musiq|музык|песн/],["taom",/taom|таом|блюд|рецепт/]
 ];
-var ORDER=["namoz","obhavo","valyuta","qibla","tasbeh","prava","xarajat","rasm","yosh","tabrik","tillar","huquq","shosh","manzil","oyin","viktorina","qoshiq","taom"];
+var ORDER=["namoz","obhavo","valyuta","qibla","tasbeh","prava","xarajat","maqsad","rasm","yosh","tabrik","tillar","huquq","shosh","manzil","oyin","viktorina","qoshiq","taom"];
 function keyOf(t){var b=t.querySelector("b"),s=nz(b?b.textContent:t.textContent);for(var i=0;i<RX.length;i++)if(RX[i][1].test(s))return RX[i][0];return null}
 
 /* ---------- uslub ---------- */
