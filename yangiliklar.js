@@ -36,6 +36,28 @@ function p(k){return c1(L()[k])}
 function $(i){return document.getElementById(i)}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
 function ago(ts){if(!ts)return "";var m=Math.round((Date.now()-ts)/6e4);if(m<2)return p("now");if(m<60)return m+" "+p("m");var h=Math.round(m/60);if(h<24)return h+" "+p("h");return Math.round(h/24)+" "+p("d")}
+
+var CL={"а":"a","б":"b","в":"v","г":"g","д":"d","ё":"yo","ж":"j","з":"z","и":"i","й":"y","к":"k","л":"l","м":"m","н":"n","о":"o","п":"p","р":"r","с":"s","т":"t","у":"u","ф":"f","х":"x","ц":"ts","ч":"ch","ш":"sh","щ":"shch","ъ":"’","ы":"i","ь":"","э":"e","ю":"yu","я":"ya","ў":"oʻ","қ":"q","ғ":"gʻ","ҳ":"h","ҷ":"j","ӣ":"i"};
+var VW="аеёиоуэюяўыaeiou";
+function lat(s){
+  var o="",i,ch,lo,r,pv;
+  for(i=0;i<s.length;i++){
+    ch=s.charAt(i);lo=ch.toLowerCase();
+    if(lo==="е"){pv=i>0?s.charAt(i-1).toLowerCase():" ";r=(!/[a-zа-яёўқғҳ]/i.test(pv)||VW.indexOf(pv)>=0)?"ye":"e"}
+    else if(CL.hasOwnProperty(lo))r=CL[lo];
+    else{o+=ch;continue}
+    if(ch!==lo&&r){var nx=s.charAt(i+1);r=(nx&&nx===nx.toUpperCase()&&nx!==nx.toLowerCase()&&r.length>1)?r.toUpperCase():r.charAt(0).toUpperCase()+r.slice(1)}
+    o+=r;
+  }
+  return o;
+}
+function fx(x){
+  if(LANG==="ru")return x;
+  var s=x.t+" "+(x.d||""),hasC=/[\u0400-\u04FF]/.test(s),isUz=/[ўқғҳЎҚҒҲ]/.test(s);
+  if(LANG==="uz"&&hasC&&isUz)return {t:lat(x.t),d:lat(x.d||""),s:x.s,u:x.u,i:x.i,ts:x.ts};
+  if(LANG==="oz"&&!hasC&&/[a-z]/i.test(s)&&x.s!=="BBC")return {t:cyr(x.t),d:x.d?cyr(x.d):"",s:x.s,u:x.u,i:x.i,ts:x.ts};
+  return x;
+}
 var CATS=["uz","andijon","region","world"],ICON={uz:"🇺🇿",andijon:"📍",region:"🏡",world:"🌍"};
 var ST={c:"uz",r:"fargona",data:{},busy:false,err:false,off:false};
 try{var sv=JSON.parse(localStorage.getItem("nw_st")||"null");if(sv){if(CATS.indexOf(sv.c)>=0)ST.c=sv.c;if(L().reg[sv.r]||UI.uz.reg[sv.r])ST.r=sv.r}}catch(e){}
@@ -79,7 +101,7 @@ function draw(){
   h+='<div class="nw-tabs">'+CATS.map(function(c){return '<button data-c="'+c+'" class="'+(c===ST.c?"on":"")+'">'+ICON[c]+' '+p(c)+'</button>'}).join("")+'</div>';
   if(ST.off)h+='<div class="nw-w">'+p("offline")+'</div>';
   if(d&&d.items.length){
-    h+=d.items.map(function(x,i){return '<button class="nw-c" data-i="'+i+'">'+'<div class="tx"><b>'+esc(x.t)+'</b>'+(x.d?'<p>'+esc(x.d)+'</p>':'')+'<small>'+esc([x.s,ago(x.ts)].filter(Boolean).join(" · "))+'</small></div>'+(x.i?'<img loading="lazy" referrerpolicy="no-referrer" src="'+esc(x.i)+'" alt="" onerror="this.style.display=\'none\'">':'')+'</button>'}).join("");
+    h+=d.items.map(function(x0,i){var x=fx(x0);return '<button class="nw-c" data-i="'+i+'">'+'<div class="tx"><b>'+esc(x.t)+'</b>'+(x.d?'<p>'+esc(x.d)+'</p>':'')+'<small>'+esc([x.s,ago(x.ts)].filter(Boolean).join(" · "))+'</small></div>'+(x.i?'<img loading="lazy" referrerpolicy="no-referrer" src="'+esc(x.i)+'" alt="" onerror="this.style.display=\'none\'">':'')+'</button>'}).join("");
   }else if(ST.busy){h+='<div class="nw-sk"></div><div class="nw-sk"></div><div class="nw-sk"></div><div class="nw-sk"></div>'}
   else if(ST.err){h+='<div class="nw-m">'+p("fail")+'<button class="nw-b" id="nwre">'+p("retry")+'</button></div>'}
   else{h+='<div class="nw-m">'+p("empty")+'<button class="nw-b" id="nwre">'+p("retry")+'</button></div>'}
