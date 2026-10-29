@@ -105,8 +105,8 @@ h1{font-size:20px;margin:4px 0 2px}
   </div>
 </div>
 
-<script>
-window.onerror=function(m,s,l){document.body.insertAdjacentHTML("afterbegin",'<pre style="color:#d00;font-size:12px;white-space:pre-wrap">Xato: '+m+' ('+l+')</pre>')};
+  <script>
+window.onerror=function(m,s,l){var c=document.currentScript;document.body.insertAdjacentHTML("afterbegin",'<pre style="color:#d00;font-size:12px;white-space:pre-wrap">Xato: '+m+' ('+l+') '+((c&&c.src)||s||'')+'</pre>');};
 </script>
 <script src="app.js?v=2"></script>
 <script src="prava.js?v=3"></script>
