@@ -11,10 +11,25 @@ table{width:100%;border-collapse:collapse;margin-top:6px}td,th{padding:9px 6px;b
 </style></head><body>
 <h1>🕌 Namoz jadvalini yangilash</h1>
 <div class="card"><label for="k">Admin kaliti</label><input id="k" type="password" autocomplete="off"><div class="chk"><input type="checkbox" id="rm"><span>Shu telefonda eslab qolish</span></div></div>
-<div class="card"><label for="t">Haftalik xabarni shu yerga qo‘ying</label><textarea id="t" placeholder="30.10.2026 йилдан 06.11.2026 йилгача … Бомдод 05:25 06:05 …"></textarea><button id="chk">Tekshirish</button><div id="out"></div></div>
+<div class="card"><label for="t">Haftalik xabarni shu yerga qo‘ying</label><textarea id="t" placeholder="30.10.2026 йилдан 06.11.2026 йилгача … Бомдод 05:25 06:05 …"></textarea><button id="chk" type="button" onclick="call(false)">Tekshirish</button><div id="out"></div></div>
+<script>window.onerror=function(m,s,l){var o=document.getElementById("out");if(o)o.innerHTML='<div class="er">JS xato: '+m+' ('+l+')</div>'};</script>
 <script>
 var API="https://rasm-ai.muhammadaminergashev96.workers.dev/sched",$=function(i){return document.getElementById(i)},cur=null;
 try{var sk=localStorage.getItem("jd_key");if(sk){$("k").value=sk;$("rm").checked=true}}catch(e){}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
 function call(save){
-  var key=$("k").value.t
+  var key=$("k").value.trim();
+  if(!key){$("out").innerHTML='<div class="er">Admin kalitini kiriting</div>';return}
+  try{if($("rm").checked)localStorage.setItem("jd_key",key);else localStorage.removeItem("jd_key")}catch(e){}
+  $("out").innerHTML='<div class="ok" style="font-weight:400">Yuklanmoqda…</div>';
+  fetch(API,{method:"POST",headers:{"Content-Type":"application/json","X-Key":key},body:JSON.stringify({text:$("t").value,save:save?1:0})}).then(function(r){return r.json()}).then(function(j){
+    if(j.error&&!j.entry){$("out").innerHTML='<div class="er">'+esc(j.error)+'</div>';return}
+    if(!j.ok){$("out").innerHTML='<div class="er">'+esc(j.error||"Xato")+'</div>';return}
+    var e=j.entry,rows=["Bomdod","Peshin","Asr","Shom","Xufton"].map(function(n){return "<tr><td>"+n+"</td><td>"+e.t[n][0]+"</td><td>"+e.t[n][1]+"</td></tr>"}).join("");
+    var h='<div style="margin-top:12px;font-weight:700">'+esc(e.from.split("-").reverse().join("."))+' — '+esc(e.to.split("-").reverse().join("."))+'</div><table><tr><th></th><th>Azon</th><th>Takbir</th></tr>'+rows+'</table>';
+    if(j.saved)h+='<div class="ok">Saqlandi ✓ Ilovada 2–3 daqiqada ko‘rinadi.</div>';
+    else h+='<button id="sv">Saqlash</button>';
+    $("out").innerHTML=h;var sv=$("sv");if(sv)sv.onclick=function(){call(true)};
+  }).catch(function(){$("out").innerHTML='<div class="er">Ulanib bo‘lmadi. Internetni tekshiring.</div>'});
+}
+</script></body></html>
