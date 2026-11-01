@@ -47,6 +47,9 @@ var GAMES=[
  {id:6,kids:0,e:"🔢",bg:"linear-gradient(135deg,#b8643a,#e6a066)"},
  {id:7,kids:0,e:"🎵",bg:"linear-gradient(135deg,#d6336c,#7048e8)"}
 ];
+var X2=(window.OG2&&window.OG2.games)||[];
+X2.forEach(function(g){GAMES.push({id:g.id,kids:2,e:g.e,bg:g.bg});UI.uz["g"+g.id]=g.n[0];UI.uz["g"+g.id+"d"]=g.d[0];UI.ru["g"+g.id]=g.n[1];UI.ru["g"+g.id+"d"]=g.d[1]});
+UI.uz.pop="Mashhur";UI.ru.pop="Хиты";
 var st={tab:1,game:null,timers:[],intervals:[],raf:0,keyfn:null};
 var css=document.createElement("style");
 css.textContent=".og-chip{float:right;background:var(--accbg);color:var(--acc);border-radius:20px;padding:6px 12px;font-weight:800;font-size:15px}.og-tabs{display:flex;gap:6px;background:var(--line);padding:4px;border-radius:14px;margin:12px 0}.og-tabs button{flex:1;padding:10px;border-radius:11px;border:0;background:transparent;color:var(--mut);font-weight:700;font-size:15px;font-family:inherit}.og-tabs button.on{background:var(--acc);color:#fff}.og-list{display:grid;grid-template-columns:1fr 1fr;gap:10px}.og-g{border:0;border-radius:18px;padding:14px;text-align:left;color:#fff;font-family:inherit;min-height:116px}.og-g .e{font-size:36px;display:block}.og-g b{display:block;margin-top:8px;font-size:16px}.og-g .d{font-size:12px;opacity:.9}.og-hud{display:flex;justify-content:space-between;font-weight:800;font-size:20px;margin:6px 2px 10px}.og-play{position:relative;height:420px;border-radius:16px;overflow:hidden;background:linear-gradient(#bfe6ff,#eaf7ff);touch-action:manipulation;user-select:none}.og-bal{position:absolute;top:0;border-radius:50% 50% 48% 48%;will-change:transform;box-shadow:inset -6px -8px 0 rgba(0,0,0,.14)}.og-mem{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.og-c{aspect-ratio:1;border-radius:14px;border:0;font-size:32px;background:var(--acc);color:#fff;font-family:inherit}.og-c.f{background:var(--card);border:2px solid var(--line)}.og-c.m{background:var(--accbg);border:2px solid var(--acc)}.og-big{font-size:42px;line-height:1.35;text-align:center;padding:14px;word-break:break-all}.og-opts{display:grid;grid-template-columns:repeat(auto-fit,minmax(72px,1fr));gap:10px}.og-o{padding:16px;border-radius:14px;border:2px solid var(--line);background:var(--card);color:var(--text);font-size:24px;font-weight:800;font-family:inherit}.og-o.ok{background:#2fbf71;color:#fff;border-color:#2fbf71}.og-o.no{background:#e5484d;color:#fff;border-color:#e5484d}.og-b{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;background:#bbada0;padding:8px;border-radius:12px;touch-action:none;user-select:none}.og-t{aspect-ratio:1;border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:22px;background:#cdc1b4;color:#776e65}.og-s{display:grid;grid-template-columns:1fr 1fr;gap:10px}.og-p{aspect-ratio:1.3;border-radius:18px;border:0;opacity:.5}.og-p.lit{opacity:1;filter:brightness(1.35)}.og-res{text-align:center;padding:10px 0}.og-res .s{font-size:46px;letter-spacing:4px}.og-btn{display:block;width:100%;padding:14px;border:0;border-radius:12px;background:var(--acc);color:#fff;font-size:16px;font-weight:700;margin-top:10px;font-family:inherit}.og-btn.l{background:var(--accbg);color:var(--acc)}";
@@ -69,8 +72,8 @@ function bindBack(){var b=$("ob");if(b)b.addEventListener("click",function(){sho
 function drawList(){
   stop();st.game=null;
   var h=back()+'<div class="card"><span class="og-chip">⭐ '+getStars()+'</span><h2>'+p("title")+'</h2>'+
-   '<div class="og-tabs"><button data-t="1" class="'+(st.tab?'on':'')+'">'+p("kids")+'</button><button data-t="0" class="'+(st.tab?'':'on')+'">'+p("adults")+'</button></div><div class="og-list">'+
-   GAMES.filter(function(g){return !!g.kids===!!st.tab}).map(function(g){return '<button class="og-g" data-g="'+g.id+'" style="background:'+g.bg+'"><span class="e">'+g.e+'</span><b>'+p("g"+g.id)+'</b><span class="d">'+p("g"+g.id+"d")+'</span></button>'}).join("")+'</div></div>';
+   '<div class="og-tabs"><button data-t="1" class="'+(st.tab===1?'on':'')+'">'+p("kids")+'</button><button data-t="0" class="'+(st.tab===0?'on':'')+'">'+p("adults")+'</button><button data-t="2" class="'+(st.tab===2?'on':'')+'">'+p("pop")+'</button></div><div class="og-list">'+
+   GAMES.filter(function(g){return g.kids===st.tab}).map(function(g){return '<button class="og-g" data-g="'+g.id+'" style="background:'+g.bg+'"><span class="e">'+g.e+'</span><b>'+p("g"+g.id)+'</b><span class="d">'+p("g"+g.id+"d")+'</span></button>'}).join("")+'</div></div>';
   sec.innerHTML=h;bindBack();
   var tb=sec.querySelectorAll("[data-t]");for(var i=0;i<tb.length;i++)tb[i].addEventListener("click",function(){st.tab=+this.getAttribute("data-t");drawList()});
   var gb=sec.querySelectorAll("[data-g]");for(i=0;i<gb.length;i++)gb[i].addEventListener("click",function(){start(+this.getAttribute("data-g"))});
@@ -80,6 +83,7 @@ function start(id){
   sec.innerHTML=back()+'<div class="card"><span class="og-chip">⭐ '+getStars()+'</span><h2>'+p("g"+id)+'</h2><div id="og"></div></div>';
   bindBack();window.scrollTo(0,0);
   var box=$("og");
+  if(id>7){var xg=X2.filter(function(g){return g.id===id})[0];xg.run(box,{finish:finish,later:later,every:every,st:st,t:function(u,r){return LANG==="ru"?r:tr(u)}});return}
   [null,g1,g2,g3,g4,g5,g6,g7][id](box);
 }
 function finish(stars,text){
