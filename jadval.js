@@ -4,7 +4,7 @@ function apply(list){
   try{
     if(typeof SCHEDULE==="undefined"||!list||!list.length)return;
     SCHEDULE=SCHEDULE.filter(function(x){return !x.__w});
-    list.slice().sort(function(a,b){return a.from<b.from?1:-1}).forEach(function(x){
+    list.slice().sort(function(a,b){return a.from<b.from?-1:1}).forEach(function(x){
       if(x&&x.from&&x.to&&x.t)SCHEDULE.unshift({from:x.from,to:x.to,t:x.t,__w:1});
     });
     if(typeof renderPray==="function")renderPray();
