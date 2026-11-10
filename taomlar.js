@@ -21,8 +21,8 @@ function cyr(s){
 }
 function tr(s){return LANG==="oz"?cyr(s):s}
 var UI={
-uz:{tile:"Taomlar",tileS:"Retseptlar va baraban",title:"Taomlar",search:"Taom yoki masalliq qidirish…",all:"Hammasi",tab1:"Retseptlar",tab2:"Baraban",none:"Hech narsa topilmadi",ing:"Masalliqlar",steps:"Tayyorlash",min:"daqiqa",serv:"kishilik",spin:"Aylantirish",spinning:"Aylanmoqda…",res:"Bugun tayyorlang:",open:"Retseptni ochish",again:"Yana aylantirish",hint:"Baraban tasodifiy taom tanlaydi",note:"Miqdorlar taxminiy. Didingizga qarab tuz va ziravorni o‘zgartiring.",back:"← Taomlar",cats:["Birinchi taomlar","Ikkinchi taomlar","Xamirli taomlar","Salatlar","Nonushta va shirinlik"]},
-ru:{tile:"Блюда",tileS:"Рецепты и барабан",title:"Блюда",search:"Поиск блюда или продукта…",all:"Все",tab1:"Рецепты",tab2:"Барабан",none:"Ничего не найдено",ing:"Ингредиенты",steps:"Приготовление",min:"мин",serv:"порций",spin:"Крутить",spinning:"Крутится…",res:"Приготовьте сегодня:",open:"Открыть рецепт",again:"Крутить ещё",hint:"Барабан выберет случайное блюдо",note:"Количество примерное. Соль и специи меняйте по вкусу.",back:"← Блюда",cats:["Первые блюда","Вторые блюда","Блюда из теста","Салаты","Завтраки и десерты"]}
+uz:{tile:"Taomlar",tileS:"Retseptlar va baraban",title:"Taomlar",search:"Taom yoki masalliq qidirish…",all:"Hammasi",tab1:"Retseptlar",tab2:"Baraban",none:"Hech narsa topilmadi",ing:"Masalliqlar",steps:"Tayyorlash",min:"daqiqa",serv:"kishilik",spin:"Aylantirish",spinning:"Aylanmoqda…",res:"Bugun tayyorlang:",open:"Retseptni ochish",again:"Yana aylantirish",hint:"Baraban tasodifiy taom tanlaydi",note:"Miqdorlar taxminiy. Didingizga qarab tuz va ziravorni o‘zgartiring.",back:"← Taomlar",cats:["Birinchi taomlar","Ikkinchi taomlar","Xamirli taomlar","Salatlar","Nonushta va shirinlik","Non va pishiriqlar"]},
+ru:{tile:"Блюда",tileS:"Рецепты и барабан",title:"Блюда",search:"Поиск блюда или продукта…",all:"Все",tab1:"Рецепты",tab2:"Барабан",none:"Ничего не найдено",ing:"Ингредиенты",steps:"Приготовление",min:"мин",serv:"порций",spin:"Крутить",spinning:"Крутится…",res:"Приготовьте сегодня:",open:"Открыть рецепт",again:"Крутить ещё",hint:"Барабан выберет случайное блюдо",note:"Количество примерное. Соль и специи меняйте по вкусу.",back:"← Блюда",cats:["Первые блюда","Вторые блюда","Блюда из теста","Салаты","Завтраки и десерты","Хлеб и выпечка"]}
 };
 
 var R=[
@@ -80,7 +80,7 @@ var R=[
 {e:"🍚",c:4,t:50,s:4,n:["Sutli guruch","Молочная рисовая каша"],
  i:[["200 g guruch","1 l sut","2 osh qoshiq shakar","Bir chimdim tuz","1 osh qoshiq saryog‘"],["200 г риса","1 л молока","2 ст. л. сахара","Щепотка соли","1 ст. л. сливочного масла"]],
  p:[["Guruchni yuvib, 10 daqiqa qaynoq suvda yarim pishiring.","Suvni to‘kib, sutni qaynating.","Guruchni qaynoq sutga solib, tuz va shakar qo‘shing.","Past olovda tez-tez aralashtirib, 30–35 daqiqa pishiring.","Saryog‘ qo‘shib, 10 daqiqa dam bering."],["Рис промойте и 10 минут проварите в кипятке.","Воду слейте, молоко доведите до кипения.","Добавьте рис в кипящее молоко, посолите и положите сахар.","Варите на малом огне 30–35 минут, часто помешивая.","Добавьте масло и дайте настояться 10 минут."]]}
-];
+].concat(window.TAOM_EXTRA||[]);
 
 var COL=["#ef4444","#f59e0b","#10b981","#3b82f6","#8b5cf6","#ec4899","#14b8a6","#f97316"];
 function p(k){return LANG==="ru"?UI.ru[k]:tr(UI.uz[k])}
@@ -94,6 +94,8 @@ var HAY=R.map(function(r){
   var uz=r.n[0]+" "+r.i[0].join(" "),ru=r.n[1]+" "+r.i[1].join(" ");
   return norm(uz+" "+cyr(uz)+" "+ru);
 });
+var WI=[];function mkWI(){var a=R.map(function(_,i){return i}),k=a.length;for(var i=k-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}WI=a.slice(0,Math.min(20,k))}
+mkWI();
 var S={tab:0,c:-1,q:"",open:-1,pick:-1,rot:0,spin:false};
 window.TAOM=R;window.TAOMOPEN=function(i){S.open=i;draw();show("taomlar")};
 var css=document.createElement("style");
@@ -121,11 +123,11 @@ function detail(){
   $("tb").addEventListener("click",function(){S.open=-1;draw()});
 }
 function drawWheel(){
-  var c=$("twc");if(!c)return;var d=c.width,x=c.getContext("2d"),n=R.length,a=2*Math.PI/n;
+  var c=$("twc");if(!c)return;var d=c.width,x=c.getContext("2d"),n=WI.length,a=2*Math.PI/n;
   x.clearRect(0,0,d,d);x.save();x.translate(d/2,d/2);x.rotate(S.rot);
   for(var i=0;i<n;i++){
     x.beginPath();x.moveTo(0,0);x.arc(0,0,d/2-4,i*a-Math.PI/2-a/2,i*a-Math.PI/2+a/2);x.closePath();x.fillStyle=COL[i%COL.length];x.fill();x.strokeStyle="#fff";x.lineWidth=2;x.stroke();
-    x.save();x.rotate(i*a);x.translate(0,-(d/2-38));x.font=Math.round(d/13)+"px sans-serif";x.textAlign="center";x.textBaseline="middle";x.fillText(R[i].e,0,0);x.restore();
+    x.save();x.rotate(i*a);x.translate(0,-(d/2-38));x.font=Math.round(d/13)+"px sans-serif";x.textAlign="center";x.textBaseline="middle";x.fillText(R[WI[i]].e,0,0);x.restore();
   }
   x.restore();
   x.beginPath();x.arc(d/2,d/2,26,0,7);x.fillStyle="#fff";x.fill();x.strokeStyle="#ddd";x.lineWidth=3;x.stroke();
@@ -138,7 +140,7 @@ function resHtml(){
 function spin(){
   if(S.spin)return;S.spin=true;S.pick=-1;
   var btn=$("tws");btn.disabled=true;btn.textContent=p("spinning");$("twr").innerHTML="";
-  var n=R.length,a=2*Math.PI/n,target=Math.floor(Math.random()*n);
+  var n=WI.length,a=2*Math.PI/n,target=Math.floor(Math.random()*n);
   // rotation so that slice 'target' is at top: slice center angle = target*a, need rot = -target*a (mod 2pi)
   var start=S.rot%(2*Math.PI),final=-target*a+(Math.random()-.5)*a*.7,turns=5+Math.floor(Math.random()*3);
   var end=start+turns*2*Math.PI+((final-start)%(2*Math.PI)+2*Math.PI)%(2*Math.PI);
@@ -148,7 +150,7 @@ function spin(){
     S.rot=start+(end-start)*e;drawWheel();
     var tick=Math.floor(S.rot/a);if(tick!==lastTick){lastTick=tick;if(k<.95)buzz()}
     if(k<1){requestAnimationFrame(f)}else{
-      S.rot=end;S.spin=false;S.pick=target;
+      S.rot=end;S.spin=false;S.pick=WI[target];
       var b=$("tws"),r=$("twr");if(b){b.disabled=false;b.textContent=p("again")}if(r){r.innerHTML=resHtml();bindRes()}
       try{Telegram.WebApp.HapticFeedback.notificationOccurred("success")}catch(_){}
     }
@@ -172,7 +174,7 @@ function draw(){
     bindList();
   }else{drawWheel();$("tws").addEventListener("click",spin);bindRes()}
 }
-tile.addEventListener("click",function(){S.open=-1;draw();show("taomlar")});
+tile.addEventListener("click",function(){S.open=-1;if(!S.spin&&S.pick<0)mkWI();draw();show("taomlar")});
 var lb=document.querySelectorAll(".lang button");
 for(var j=0;j<lb.length;j++){lb[j].addEventListener("click",function(){updTile();if(sec.classList.contains("on")&&!S.spin)draw()})}
 updTile();draw();
