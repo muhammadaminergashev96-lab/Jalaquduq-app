@@ -77,17 +77,14 @@ function draw(){
   });
   $("yc").addEventListener("click",function(){
     var v=$("yo").textContent,b=this;if(!v)return;
-    function msg(m){b.textContent=m;setTimeout(function(){b.textContent=p("copy")},1800)}
-    function ok(){selOut();hint();msg(LANG==="ru"?"Выделено ✓":tr("Belgilandi ✓"))}
-    function viaExec(){
-      try{var a=document.createElement("textarea");a.value=v;a.setAttribute("readonly","");
-        a.style.cssText="position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;font-size:16px";
-        document.body.appendChild(a);a.focus();a.select();a.setSelectionRange(0,v.length);
-        var d=document.execCommand("copy");document.body.removeChild(a);return d}catch(e){return false}
-    }
-    function fail(){selOut();hint();msg(LANG==="ru"?"Выделено":tr("Belgilandi"))}
-    try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(v).then(ok,function(){viaExec()?ok():fail()});return}}catch(e){}
-    viaExec()?ok():fail();
+    selOut();hint();
+    b.textContent=LANG==="ru"?"Выделено ✓":tr("Belgilandi ✓");
+    setTimeout(function(){b.textContent=p("copy")},2200);
+    try{var a=document.createElement("textarea");a.value=v;a.setAttribute("readonly","");
+      a.style.cssText="position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;font-size:16px";
+      document.body.appendChild(a);a.focus();a.select();a.setSelectionRange(0,v.length);
+      document.execCommand("copy");document.body.removeChild(a);selOut()}catch(e){}
+    try{if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(v).catch(function(){})}catch(e){}
   });
 }
 tile.addEventListener("click",function(){draw();show("yalifbo");window.scrollTo(0,0)});
