@@ -11,13 +11,15 @@ button{width:100%;padding:13px;border:0;border-radius:12px;background:var(--acc)
 h2{font-size:14px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em;margin:0 0 10px}
 .bars{display:flex;align-items:flex-end;gap:4px;height:120px}.bars div{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%}.bars i{display:block;width:100%;background:var(--acc);border-radius:4px 4px 0 0;min-height:2px}.bars small{font-size:10px;color:var(--mut);margin-top:3px}.bars em{font-style:normal;font-size:10px;margin-bottom:2px}
 .r{display:flex;justify-content:space-between;padding:9px 0;border-top:1px solid var(--line);font-size:15px}.r:first-of-type{border-top:0}.r span{color:var(--mut);font-size:13px}
-.e{color:var(--dn);margin-top:8px}.s{color:var(--mut);font-size:12px;text-align:center;margin-top:8px}
+.tb{display:flex;gap:6px;background:var(--line);padding:4px;border-radius:14px;margin:0 0 12px}.tb button{flex:1;padding:9px 4px;border-radius:11px;background:transparent;color:var(--mut);font-size:14px}.tb button.on{background:var(--card);color:var(--acc)}.hb{margin:10px 0 0}.hb .t{display:flex;justify-content:space-between;font-size:14px;margin-bottom:4px}.hb .t span{color:var(--mut);font-size:12px}.hb .b{height:9px;border-radius:5px;background:var(--line);overflow:hidden}.hb .b i{display:block;height:100%;background:var(--acc)}.up{color:var(--acc)}.dw{color:var(--dn)}.e{color:var(--dn);margin-top:8px}.s{color:var(--mut);font-size:12px;text-align:center;margin-top:8px}
 </style></head><body>
 <h1>📊 Jalaquduq ovozi — panel</h1>
 <div class="card" id="lg"><div style="color:var(--mut);font-size:14px">Kirish kalitini kiriting</div><input id="k" type="password" placeholder="Kalit" autocomplete="off"><button id="go">Kirish</button><div class="e" id="er"></div></div>
-<div id="out" hidden></div>
+<div id="out" hidden></div><div id="fo" hidden></div>
 <script>
-var API="https://rasm-ai.muhammadaminergashev96.workers.dev/stats";
+var API="https://rasm-ai.muhammadaminergashev96.workers.dev/stats",FAPI="https://rasm-ai.muhammadaminergashev96.workers.dev/fstats",PER=7;
+var NM={namoz:"Namoz vaqtlari",obhavo:"Ob-havo",valyuta2:"Valyuta kursi",valyuta:"Valyuta kursi",yangiliklar:"Yangiliklar",qibla:"Qibla",tasbeh:"Tasbeh",prava:"Prava",xarajat:"Xarajatlar",maqsad:"Maqsadlar",vaqt:"Vaqt taqsimoti",shrift:"Shriftlar",rasm:"Rasm vositalari",rasmv:"Rasm vositalari",yosh:"Yosh kalkulyatori",tabrik:"Tabrik",tillar:"Tillar",huquq:"Huquq",ismlar:"Ismlar",manzillar:"Manzillar",oyin:"O‘yinlar",viktorina:"Viktorina",taomlar:"Taomlar",kaloriya:"Kaloriya",yalifbo:"Yangi alifbo"};
+function nm(k){return NM[k]||k}
 function $(i){return document.getElementById(i)}
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
 function who(x){return esc(x.n||"—")+(x.u?' <span>@'+esc(x.u)+'</span>':'')}
@@ -27,7 +29,7 @@ function load(key){
     $("go").disabled=false;$("go").textContent="Kirish";
     if(!x.ok){$("er").textContent=x.j.error||"Xato";try{localStorage.removeItem("pk")}catch(e){}$("lg").hidden=false;return}
     try{localStorage.setItem("pk",key)}catch(e){}
-    show(x.j);
+    show(x.j);loadF();
   }).catch(function(){$("go").disabled=false;$("go").textContent="Kirish";$("er").textContent="Ulanib bo‘lmadi"});
 }
 function show(d){
@@ -41,6 +43,24 @@ function show(d){
   '<div class="card"><h2>Telegram tili</h2>'+(langs||'<span style="color:var(--mut)">—</span>')+'</div>'+
   '<button id="rf">Yangilash</button><div class="s">Hisob ilova birinchi marta ochilgan paytdan boshlanadi. Bir kishi kuniga bir marta sanaladi.</div>';
   $("rf").addEventListener("click",function(){try{load(localStorage.getItem("pk")||"")}catch(e){}});
+}
+function loadF(){
+  var key="";try{key=localStorage.getItem("pk")||""}catch(e){}
+  fetch(FAPI+"?days="+PER,{headers:{"X-Key":key}}).then(function(r){return r.json()}).then(showF).catch(function(){$("fo").hidden=true});
+}
+function trend(a,b){if(b==null||!(b>0)){return a>0?'<span class="up">yangi</span>':''}var p=Math.round((a-b)/b*100);return p===0?'':(p>0?'<span class="up">▲ '+p+'%</span>':'<span class="dw">▼ '+Math.abs(p)+'%</span>')}
+function showF(d){
+  var o=$("fo");if(!d||d.error){o.hidden=true;return}o.hidden=false;
+  var tot=d.secs.reduce(function(a,x){return a+x.o},0),mx=Math.max.apply(null,d.secs.map(function(x){return x.o}).concat([1]));
+  var tb='<div class="tb">'+[[1,"Bugun"],[7,"7 kun"],[30,"30 kun"]].map(function(p){return '<button data-p="'+p[0]+'" class="'+(PER===p[0]?'on':'')+'">'+p[1]+'</button>'}).join("")+'</div>';
+  var rows=d.secs.map(function(x,i){
+    return '<div class="hb"><div class="t"><b>'+(i+1)+'. '+esc(nm(x.s))+'</b><span>'+x.o+' ochilish'+(tot?' · '+Math.round(x.o/tot*100)+'%':'')+'</span></div><div class="b"><i style="width:'+Math.round(x.o/mx*100)+'%"></i></div><div class="t" style="margin:4px 0 0"><span>👤 '+x.u+' kishi · 👆 '+x.t+' bosish</span><span>'+(d.trend?trend(x.o,x.po):'')+'</span></div></div>';
+  }).join("")||'<span style="color:var(--mut)">Hali ma’lumot yo‘q. Yangi ilova versiyasi ochilgach to‘plana boshlaydi.</span>';
+  var bt=d.btn.map(function(x){var i=x.k.indexOf("|");return '<div class="r"><b>'+esc(x.k.slice(i+1))+' <span>'+esc(nm(x.k.slice(0,i)))+'</span></b><span>'+x.n+'</span></div>'}).join("")||'<span style="color:var(--mut)">Hali yo‘q</span>';
+  var mxd=Math.max.apply(null,d.daily.map(function(a){return a.o}).concat([1]));
+  var dl=d.days>1?'<div class="card"><h2>Kunlar bo‘yicha ochilishlar</h2><div class="bars">'+d.daily.map(function(a){return '<div><em>'+a.o+'</em><i style="height:'+Math.round(a.o/mxd*80)+'%"></i><small>'+a.d.slice(8)+'</small></div>'}).join("")+'</div></div>':'';
+  o.innerHTML='<div class="card"><h2>📈 Bo‘limlarga talab</h2>'+tb+'<div style="font-size:13px;color:var(--mut)">'+d.users+' ta odam bo‘limlardan foydalangan</div>'+rows+'</div>'+dl+'<div class="card"><h2>👆 Eng ko‘p bosilgan joylar</h2>'+bt+'</div><div class="s">Bo‘lim statistikasi yangi ilova versiyasi chiqqandan keyin to‘planadi. Raqamlar taxminiy bo‘lishi mumkin.</div>';
+  var bs=o.querySelectorAll("[data-p]");for(var i=0;i<bs.length;i++)bs[i].addEventListener("click",function(){PER=+this.getAttribute("data-p");loadF()});
 }
 $("go").addEventListener("click",function(){var k=$("k").value.trim();if(k)load(k)});
 $("k").addEventListener("keydown",function(e){if(e.key==="Enter")$("go").click()});
