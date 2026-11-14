@@ -69,9 +69,21 @@ function draw(){
   $("yx").addEventListener("click",function(){t.value="";upd()});
   $("ye").addEventListener("click",function(){t.value=UI.uz.exT;upd()});
   $("yc").addEventListener("click",function(){
-    var v=$("yo").textContent,b=this;function ok(){b.textContent=p("copied");setTimeout(function(){b.textContent=p("copy")},1500)}
-    try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(v).then(ok,fb);return}}catch(e){}
-    fb();function fb(){var a=document.createElement("textarea");a.value=v;document.body.appendChild(a);a.select();try{document.execCommand("copy")}catch(e){}document.body.removeChild(a);ok()}
+    var v=$("yo").textContent,b=this;
+    function msg(m){b.textContent=m;setTimeout(function(){b.textContent=p("copy")},1800)}
+    function ok(){msg(p("copied"))}
+    function fail(){try{var r=document.createRange();r.selectNodeContents($("yo"));var sl=window.getSelection();sl.removeAllRanges();sl.addRange(r)}catch(e){}msg(LANG==="ru"?"Выделено — зажмите и копируйте":tr("Belgilandi — bosib ushlab, nusxalang"))}
+    if(!v){return}
+    var done=false;
+    try{
+      var a=document.createElement("textarea");a.value=v;a.setAttribute("readonly","");
+      a.style.cssText="position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;font-size:16px";
+      document.body.appendChild(a);a.focus();a.select();a.setSelectionRange(0,v.length);
+      done=document.execCommand("copy");document.body.removeChild(a);
+    }catch(e){done=false}
+    if(done){ok();return}
+    try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(v).then(ok,fail);return}}catch(e){}
+    fail();
   });
 }
 tile.addEventListener("click",function(){draw();show("yalifbo");window.scrollTo(0,0)});
