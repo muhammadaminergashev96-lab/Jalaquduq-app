@@ -57,7 +57,7 @@ function draw(){
    '<div class="ya-ch"><button data-m="new" class="'+(mode==="new"?"on":"")+'">'+p("toNew")+'</button><button data-m="old" class="'+(mode==="old"?"on":"")+'">'+p("toOld")+'</button></div>'+
    '<textarea class="ya-ta" id="yt" placeholder="'+p("inp")+'"></textarea>'+
    '<div class="ya-lb">'+p("keys")+'</div><div class="ya-keys"><button data-k="ö">ö</button><button data-k="ğ">ğ</button><button data-k="ş">ş</button><button data-k="ç">ç</button></div>'+
-   '<div class="ya-lb">'+p("out")+'</div><div class="ya-out" id="yo"></div>'+
+   '<div class="ya-lb">'+p("out")+' · v4</div><div class="ya-out" id="yo"></div>'+
    '<div class="ya-row"><button id="yc">'+p("copy")+'</button><button class="s" id="ye">'+p("ex")+'</button><button class="s" id="yx">'+p("clear")+'</button></div><div class="ya-row"><button class="s" id="ys">'+tr(LANG==="ru"?"Отправить в Telegram":"Telegramga yuborish")+'</button></div><div class="sub" id="yh" style="margin:8px 0 0;display:none"></div></div>'+
    '<div class="card"><h2>'+p("rules")+'</h2><div class="sub" style="margin:0">'+p("r2")+'</div><table class="ya-tb"><tr><th>'+p("old")+'</th><th>'+p("neu")+'</th></tr>'+rows+'</table><div class="sub" style="margin:10px 0 0">'+p("ng")+'</div><div class="sub" style="margin:10px 0 0">'+p("law")+'</div><div class="sub" style="margin:10px 0 0">'+p("note")+'</div></div>';
   var t=$("yt");t.value=txt;
