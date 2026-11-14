@@ -58,7 +58,7 @@ function draw(){
    '<textarea class="ya-ta" id="yt" placeholder="'+p("inp")+'"></textarea>'+
    '<div class="ya-lb">'+p("keys")+'</div><div class="ya-keys"><button data-k="ö">ö</button><button data-k="ğ">ğ</button><button data-k="ş">ş</button><button data-k="ç">ç</button></div>'+
    '<div class="ya-lb">'+p("out")+'</div><div class="ya-out" id="yo"></div>'+
-   '<div class="ya-row"><button id="yc">'+p("copy")+'</button><button class="s" id="ye">'+p("ex")+'</button><button class="s" id="yx">'+p("clear")+'</button></div></div>'+
+   '<div class="ya-row"><button id="yc">'+p("copy")+'</button><button class="s" id="ye">'+p("ex")+'</button><button class="s" id="yx">'+p("clear")+'</button></div><div class="ya-row"><button class="s" id="ys">'+tr(LANG==="ru"?"Отправить в Telegram":"Telegramga yuborish")+'</button></div><div class="sub" id="yh" style="margin:8px 0 0;display:none"></div></div>'+
    '<div class="card"><h2>'+p("rules")+'</h2><div class="sub" style="margin:0">'+p("r2")+'</div><table class="ya-tb"><tr><th>'+p("old")+'</th><th>'+p("neu")+'</th></tr>'+rows+'</table><div class="sub" style="margin:10px 0 0">'+p("ng")+'</div><div class="sub" style="margin:10px 0 0">'+p("law")+'</div><div class="sub" style="margin:10px 0 0">'+p("note")+'</div></div>';
   var t=$("yt");t.value=txt;
   function upd(){txt=t.value;try{localStorage.setItem("ya_t",txt)}catch(e){}$("yo").textContent=conv(txt)}
@@ -68,22 +68,26 @@ function draw(){
   var ks=sec.querySelectorAll("[data-k]");for(i=0;i<ks.length;i++)ks[i].addEventListener("click",function(){var ch=this.getAttribute("data-k"),s=t.selectionStart||0,e=t.selectionEnd||0;t.value=t.value.slice(0,s)+ch+t.value.slice(e);t.selectionStart=t.selectionEnd=s+1;upd();t.focus()});
   $("yx").addEventListener("click",function(){t.value="";upd()});
   $("ye").addEventListener("click",function(){t.value=UI.uz.exT;upd()});
+  function hint(){var h=$("yh");h.style.display="block";h.textContent=LANG==="ru"?"Если не вставляется: зажмите выделенный текст и выберите «Копировать», либо нажмите «Отправить в Telegram».":tr("Agar qo‘yilmasa: belgilangan matnni bosib ushlang va “Nusxalash”ni tanlang, yoki “Telegramga yuborish” tugmasini bosing.")}
+  function selOut(){try{var r=document.createRange();r.selectNodeContents($("yo"));var sl=window.getSelection();sl.removeAllRanges();sl.addRange(r)}catch(e){}}
+  $("ys").addEventListener("click",function(){
+    var v=$("yo").textContent;if(!v)return;
+    var u="https://t.me/share/url?url=%20&text="+encodeURIComponent(v);
+    try{Telegram.WebApp.openTelegramLink(u)}catch(e){window.open(u,"_blank")}
+  });
   $("yc").addEventListener("click",function(){
-    var v=$("yo").textContent,b=this;
+    var v=$("yo").textContent,b=this;if(!v)return;
     function msg(m){b.textContent=m;setTimeout(function(){b.textContent=p("copy")},1800)}
-    function ok(){msg(p("copied"))}
-    function fail(){try{var r=document.createRange();r.selectNodeContents($("yo"));var sl=window.getSelection();sl.removeAllRanges();sl.addRange(r)}catch(e){}msg(LANG==="ru"?"Выделено — зажмите и копируйте":tr("Belgilandi — bosib ushlab, nusxalang"))}
-    if(!v){return}
-    var done=false;
-    try{
-      var a=document.createElement("textarea");a.value=v;a.setAttribute("readonly","");
-      a.style.cssText="position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;font-size:16px";
-      document.body.appendChild(a);a.focus();a.select();a.setSelectionRange(0,v.length);
-      done=document.execCommand("copy");document.body.removeChild(a);
-    }catch(e){done=false}
-    if(done){ok();return}
-    try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(v).then(ok,fail);return}}catch(e){}
-    fail();
+    function ok(){msg(p("copied"));selOut();hint()}
+    function viaExec(){
+      try{var a=document.createElement("textarea");a.value=v;a.setAttribute("readonly","");
+        a.style.cssText="position:fixed;top:0;left:0;width:1px;height:1px;opacity:0;font-size:16px";
+        document.body.appendChild(a);a.focus();a.select();a.setSelectionRange(0,v.length);
+        var d=document.execCommand("copy");document.body.removeChild(a);return d}catch(e){return false}
+    }
+    function fail(){selOut();hint();msg(LANG==="ru"?"Выделено":tr("Belgilandi"))}
+    try{if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(v).then(ok,function(){viaExec()?ok():fail()});return}}catch(e){}
+    viaExec()?ok():fail();
   });
 }
 tile.addEventListener("click",function(){draw();show("yalifbo");window.scrollTo(0,0)});
